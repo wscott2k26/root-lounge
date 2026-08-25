@@ -22,7 +22,7 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Exercise protected Vercel preview
+      - name: Exercise protected Vercel preview with diagnostics
         env:
           ROOT_LOUNGE_URL: 'https://root-lounge-ajqsdxv8j-wscott2k26s-projects.vercel.app/?_vercel_share=vA5mwwN7hnjQWAVszVgVpW0gTtZzepZ0'
           EXPECT_API: '0'
