@@ -4,6 +4,21 @@ import { gunzipSync } from 'node:zlib';
 
 const ROOT = 'https://root-lounge.vercel.app';
 const OUT = new URL('../recovered-live/', import.meta.url);
+const LOADER_BASES = [
+  ROOT,
+  'https://root-lounge-cmiih99xo-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-qyuw6efki-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-nja4g8w75-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-pwpmralcs-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-arn44ztup-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-e3iwfxqhh-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-332unaetq-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-g8b5r5omj-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-4lm5njjeb-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-cy88kxpn8-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-3ibifazeo-wscott2k26s-projects.vercel.app',
+  'https://root-lounge-l739yaw5i-wscott2k26s-projects.vercel.app',
+];
 const ASSETS = {
   'app1.js': 'https://root-lounge-assets-js1.vercel.app/app1.js',
   'app2.js': 'https://root-lounge-assets-js2.vercel.app/app2.js',
@@ -70,56 +85,46 @@ function repairPayload(rawPayload, invalid) {
     for (const replacement of BASE64_ALPHABET) {
       const candidate = `${rawPayload.slice(0, index)}${replacement}${rawPayload.slice(index + 1)}`;
       const html = tryHtmlFromPayload(candidate);
-      if (html) {
-        return {
-          payload: candidate,
-          html,
-          repairs: [{ index, from: char, to: replacement, strategy: 'single-character substitution' }],
-        };
-      }
+      if (html) return { payload: candidate, html, repairs: [{ index, from: char, to: replacement, strategy: 'single-character substitution' }] };
     }
-
     const removed = `${rawPayload.slice(0, index)}${rawPayload.slice(index + 1)}`;
-    const removedHtml = tryHtmlFromPayload(removed);
-    if (removedHtml) {
-      return {
-        payload: removed,
-        html: removedHtml,
-        repairs: [{ index, from: char, to: '', strategy: 'remove stray character' }],
-      };
+    const html = tryHtmlFromPayload(removed);
+    if (html) return { payload: removed, html, repairs: [{ index, from: char, to: '', strategy: 'remove stray character' }] };
+  }
+  return null;
+}
+
+async function recoverNewestWorkingHtml() {
+  const attempts = [];
+  for (const base of LOADER_BASES) {
+    const loaderUrl = `${base}/loader.js`;
+    try {
+      const loader = await fetchBytes(loaderUrl);
+      const { rawPayload, invalid } = extractAtobPayload(loader.toString('utf8'));
+      const repaired = repairPayload(rawPayload, invalid);
+      attempts.push({ base, status: repaired ? 'working' : 'corrupt', invalid });
+      if (repaired) return { base, loader, repaired, attempts, invalid };
+    } catch (error) {
+      attempts.push({ base, status: 'unavailable', error: String(error?.message || error) });
     }
   }
-
-  throw new Error(`Could not mathematically repair loader payload; invalid count=${invalid.length}`);
+  throw new Error(`No intact historical Root Lounge loader found: ${JSON.stringify(attempts)}`);
 }
 
 await mkdir(OUT, { recursive: true });
-const manifest = {
-  recoveredAt: new Date().toISOString(),
-  source: ROOT,
-  files: {},
-  loaderRepair: null,
+const manifest = { recoveredAt: new Date().toISOString(), source: ROOT, files: {}, loaderRecovery: null };
+
+const recovered = await recoverNewestWorkingHtml();
+await writeFile(new URL('loader.js', OUT), recovered.loader);
+await writeFile(new URL('index.html', OUT), recovered.repaired.html);
+manifest.loaderRecovery = {
+  selectedDeployment: recovered.base,
+  repairs: recovered.repaired.repairs,
+  invalidCharactersFound: recovered.invalid,
+  attempts: recovered.attempts,
 };
-
-const loader = await fetchBytes(`${ROOT}/loader.js`);
-await writeFile(new URL('loader.js', OUT), loader);
-manifest.files['loader.js'] = { bytes: loader.length, sha256: sha256(loader), url: `${ROOT}/loader.js` };
-
-const loaderText = loader.toString('utf8');
-const { rawPayload, invalid } = extractAtobPayload(loaderText);
-console.log(`Live loader payload length: ${rawPayload.length}`);
-if (invalid.length) console.warn('Invalid Base64 characters:', invalid);
-const repaired = repairPayload(rawPayload, invalid);
-console.log('Loader repair:', repaired.repairs.length ? repaired.repairs : 'none required');
-manifest.loaderRepair = {
-  originalCharacters: rawPayload.length,
-  repairedCharacters: repaired.payload.length,
-  invalidCharactersFound: invalid,
-  repairs: repaired.repairs,
-};
-
-await writeFile(new URL('index.html', OUT), repaired.html);
-manifest.files['index.html'] = { bytes: repaired.html.length, sha256: sha256(repaired.html), source: 'mathematically repaired and decoded from loader.js' };
+manifest.files['loader.js'] = { bytes: recovered.loader.length, sha256: sha256(recovered.loader), url: `${recovered.base}/loader.js` };
+manifest.files['index.html'] = { bytes: recovered.repaired.html.length, sha256: sha256(recovered.repaired.html), source: `decoded from ${recovered.base}` };
 
 for (const [name, url] of Object.entries(ASSETS)) {
   const bytes = await fetchBytes(url);
@@ -134,12 +139,8 @@ for (const endpoint of ['api/config', 'api/health']) {
   manifest.files[name] = { bytes: bytes.length, sha256: sha256(bytes), url: `${ROOT}/${endpoint}` };
 }
 
-await writeFile(
-  new URL('recovery-manifest.json', OUT),
-  `${JSON.stringify(manifest, null, 2)}\n`,
-  'utf8',
-);
-
+await writeFile(new URL('recovery-manifest.json', OUT), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+console.log(`Selected intact HTML deployment: ${recovered.base}`);
 console.log(`Recovered ${Object.keys(manifest.files).length} live files.`);
 for (const [name, meta] of Object.entries(manifest.files)) {
   console.log(`${name.padEnd(24)} ${String(meta.bytes).padStart(8)} bytes  ${meta.sha256.slice(0, 16)}…`);
