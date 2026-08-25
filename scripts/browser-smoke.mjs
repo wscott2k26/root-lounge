@@ -13,6 +13,9 @@ page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text());}
 const assert=(condition,message)=>{if(!condition)throw new Error(message);};
 await mkdir('qa/screenshots',{recursive:true});
 
+// This is the returning-user regression suite. The dedicated onboarding test
+// owns first-run tour behavior, so mark it complete before any app scripts run.
+await page.addInitScript(() => localStorage.setItem('root-lounge-tour-v1','done'));
 await page.goto(target,{waitUntil:'domcontentloaded',timeout:30000});
 await page.waitForSelector('#guiShell',{timeout:20000});
 await page.waitForTimeout(1600);
@@ -83,7 +86,8 @@ if(expectApi){
   assert(api.config.status===200,`/api/config returned ${api.config.status}`);
   assert(api.health.status===200,`/api/health returned ${api.health.status}`);
   assert(api.health.body?.ok===true,'/api/health did not report ok=true');
-  assert(api.health.body?.version==='3.2.0-recovered',`Unexpected health version: ${api.health.body?.version}`);
+  assert(api.health.body?.version==='3.3.0-recovered',`Unexpected health version: ${api.health.body?.version}`);
+  assert(api.health.body?.supabaseConfigured===true,'/api/health did not report the public Supabase client ready');
   assert([200,503].includes(api.checkout.status),`Checkout honesty check returned unexpected ${api.checkout.status}`);
   if(api.checkout.status===503) assert(/not configured/i.test(String(api.checkout.body?.error||'')),'Checkout 503 did not explain configuration state');
   console.log(`API config: PASS (${api.config.status})`);
