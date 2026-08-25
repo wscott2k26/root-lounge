@@ -26,6 +26,27 @@ function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
+function extractAtobPayload(source) {
+  const marker = 'atob(';
+  const start = source.indexOf(marker);
+  if (start < 0) throw new Error('loader.js does not contain atob(');
+  let quotePos = -1;
+  let quote = '';
+  for (let i = start + marker.length; i < source.length; i++) {
+    if (source[i] === '"' || source[i] === "'") {
+      quotePos = i;
+      quote = source[i];
+      break;
+    }
+  }
+  if (quotePos < 0) throw new Error('Could not find opening payload quote in loader.js');
+  const end = source.indexOf(quote, quotePos + 1);
+  if (end < 0) throw new Error('Could not find closing payload quote in loader.js');
+  const payload = source.slice(quotePos + 1, end).trim();
+  if (!payload.startsWith('H4sI')) throw new Error(`Unexpected loader payload prefix: ${payload.slice(0, 12)}`);
+  return payload;
+}
+
 await mkdir(OUT, { recursive: true });
 const manifest = {
   recoveredAt: new Date().toISOString(),
@@ -38,13 +59,7 @@ await writeFile(new URL('loader.js', OUT), loader);
 manifest.files['loader.js'] = { bytes: loader.length, sha256: sha256(loader), url: `${ROOT}/loader.js` };
 
 const loaderText = loader.toString('utf8');
-const direct = loaderText.match(/atob\s*\(\s*\\?["']([A-Za-z0-9+/=]+)\\?["']\s*\)/s);
-const fallback = loaderText.match(/H4sI[A-Za-z0-9+/=]{1000,}/);
-const payload = direct?.[1] ?? fallback?.[0];
-if (!payload) {
-  console.error('loader.js prefix:', JSON.stringify(loaderText.slice(0, 240)));
-  throw new Error('Could not locate compressed HTML payload in loader.js');
-}
+const payload = extractAtobPayload(loaderText);
 const html = gunzipSync(Buffer.from(payload, 'base64'));
 await writeFile(new URL('index.html', OUT), html);
 manifest.files['index.html'] = { bytes: html.length, sha256: sha256(html), source: 'decoded from loader.js' };
