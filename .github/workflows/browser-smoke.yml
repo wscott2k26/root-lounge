@@ -28,7 +28,7 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Start local Root Lounge
+      - name: Start hardened Root Lounge locally
         run: |
           python3 -m http.server 4173 > /tmp/root-lounge-http.log 2>&1 &
           echo $! > /tmp/root-lounge-http.pid
