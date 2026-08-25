@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'recovered-live/helper.js'
       - 'recovered-live/onboarding.js'
       - 'recovered-live/onboarding.css'
       - 'api/config.js'
