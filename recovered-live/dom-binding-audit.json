@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-25T15:54:45.510Z",
+  "generatedAt": "2026-08-25T15:55:33.331Z",
   "sourceFiles": {
     "recovered-live/app1.js": {
       "bytes": 11441,
@@ -19,10 +19,6 @@
     }
   },
   "requiredIds": [
-    "#guiCheckinSliders input",
-    "#guiNav button",
-    ".gui-view",
-    "[data-gui-jump]",
     "backendLabel",
     "breatheBtn",
     "caffeineBtn",
@@ -118,10 +114,14 @@
     "themeSelector"
   ],
   "selectors": [
+    "#guiCheckinSliders input",
+    "#guiNav button",
     "#tabs button",
+    ".gui-view",
     ".view",
+    "[data-gui-jump]",
     "a[href],button:not([disabled]),input,select,textarea"
   ],
-  "requiredIdCount": 97,
-  "selectorCount": 3
+  "requiredIdCount": 93,
+  "selectorCount": 7
 }
