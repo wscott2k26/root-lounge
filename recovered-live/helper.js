@@ -25,5 +25,12 @@
       }catch(error){button.disabled=false;msg.textContent=error?.message||'Unable to create the workspace.';}
     });
   }
-  window.addEventListener('DOMContentLoaded',()=>{addCard();setTimeout(addCard,1200);});
+  function loadOnboarding(){
+    if(document.querySelector('script[data-root-lounge-onboarding]'))return;
+    const script=document.createElement('script');
+    script.src='/recovered-live/onboarding.js';
+    script.dataset.rootLoungeOnboarding='true';
+    document.body.append(script);
+  }
+  window.addEventListener('DOMContentLoaded',()=>{addCard();loadOnboarding();setTimeout(addCard,1200);});
 })();
