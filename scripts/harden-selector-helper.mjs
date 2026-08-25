@@ -7,18 +7,21 @@ const files = [
   'recovered-live/gui.js',
 ];
 
+const standaloneDollarCall = /(?<![\w$])\$\(/g;
+
 for (const file of files) {
   let text = await readFile(file, 'utf8');
   if (file.endsWith('app1.js')) {
     text = text.replace("const $=(id)=>document.getElementById(id);", "const RL$=(id)=>document.getElementById(id);");
   }
-  text = text.replace(/(?<!\$)\$\(/g, 'RL$(');
+  text = text.replace(standaloneDollarCall, 'RL$(');
   await writeFile(file, text, 'utf8');
 }
 
 const combined = (await Promise.all(files.map(file => readFile(file, 'utf8')))).join('\n');
-if (/const \$=/.test(combined) || /(?<!\$)\$\(/.test(combined)) {
-  throw new Error('Standalone $ selector helper references remain after hardening.');
+const remaining = combined.match(/(?<![\w$])\$\(/g) || [];
+if (/const \$=/.test(combined) || remaining.length) {
+  throw new Error(`Standalone $ selector helper references remain after hardening: ${remaining.length}`);
 }
 if (!combined.includes('const RL$=(id)=>document.getElementById(id);')) {
   throw new Error('RL$ selector helper was not installed.');
