@@ -27,14 +27,14 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Exercise first-run onboarding on Vercel preview
         env:
-          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=YmhhvT4rAXj4Lt6vsdiITAhfIN6XQhpM'
+          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=BFyMjVbZaZhvxY3dvTvQNxeW20zZxovj'
         run: node scripts/onboarding-browser.mjs
       - name: Prove anonymous Supabase shared session
         env:
-          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=YmhhvT4rAXj4Lt6vsdiITAhfIN6XQhpM'
+          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=BFyMjVbZaZhvxY3dvTvQNxeW20zZxovj'
         run: node scripts/shared-backend-browser.mjs
       - name: Exercise returning-user Vercel preview and APIs
         env:
-          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=YmhhvT4rAXj4Lt6vsdiITAhfIN6XQhpM'
+          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=BFyMjVbZaZhvxY3dvTvQNxeW20zZxovj'
           EXPECT_API: '1'
         run: node scripts/browser-smoke.mjs
