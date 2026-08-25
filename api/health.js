@@ -3,6 +3,9 @@ const isPlaceholder = (value = '') => {
   return !v || /^(paste_|your_|replace_|changeme|placeholder)/i.test(v);
 };
 
+const PUBLIC_SUPABASE_URL = 'https://wfjkuajzkotihcpsxxgz.supabase.co';
+const PUBLIC_SUPABASE_KEY = 'sb_publishable_i5L0S1ucIzFXVYN5d8TWBw_hHYNC2Us';
+
 const diagnostics = () => {
   const stripeSecret = String(process.env.STRIPE_SECRET_KEY || '').trim();
   const webhookSecret = String(process.env.STRIPE_WEBHOOK_SECRET || '').trim();
@@ -49,9 +52,11 @@ export default async function handler(req, res) {
   }
 
   const d = diagnostics();
-  const supabaseUrl = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
+  const supabaseUrl = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || PUBLIC_SUPABASE_URL).trim();
+  const supabaseKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || PUBLIC_SUPABASE_KEY).trim();
   const supabaseConfigured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(supabaseUrl)
-    && d.serviceRole.present && !d.serviceRole.placeholder && d.serviceRole.lengthValid;
+    && /^(sb_publishable_|eyJ)/.test(supabaseKey) && !isPlaceholder(supabaseKey);
+  const supabaseAdminConfigured = d.serviceRole.present && !d.serviceRole.placeholder && d.serviceRole.lengthValid;
   const pricesReady = Object.values(d.prices).every(p => p.present && !p.placeholder && p.formatValid);
   const stripeConfigured = d.stripeSecret.present && !d.stripeSecret.placeholder && d.stripeSecret.formatValid && pricesReady;
   const webhookConfigured = d.webhookSecret.present && !d.webhookSecret.placeholder && d.webhookSecret.formatValid;
@@ -72,8 +77,9 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({
     ok: true,
-    version: '3.2.0-recovered',
+    version: '3.3.0-recovered',
     supabaseConfigured,
+    supabaseAdminConfigured,
     stripeConfigured,
     webhookConfigured,
     paymentReady: stripeConfigured && webhookConfigured,
