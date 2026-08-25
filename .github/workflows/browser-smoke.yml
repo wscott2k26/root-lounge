@@ -1,0 +1,45 @@
+name: Browser smoke Root Lounge rebuild
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'recovered-live/**'
+      - 'scripts/browser-smoke.mjs'
+      - '.github/workflows/browser-smoke.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependency
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local Root Lounge
+        run: |
+          python3 -m http.server 4173 > /tmp/root-lounge-http.log 2>&1 &
+          echo $! > /tmp/root-lounge-http.pid
+          for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/root-lounge-http.log
+          exit 1
+      - name: Exercise real browser flows
+        run: node scripts/browser-smoke.mjs
+      - name: Commit real browser screenshots
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qa/screenshots
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Capture verified Root Lounge rebuild screenshots'
+          git push
