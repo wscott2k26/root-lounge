@@ -24,6 +24,6 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Exercise protected Vercel preview
         env:
-          ROOT_LOUNGE_URL: 'https://root-lounge-ot34yelqb-wscott2k26s-projects.vercel.app/?_vercel_share=plNdeqw7nIectiHzuoAZJFFDGNtby5zU'
+          ROOT_LOUNGE_URL: 'https://root-lounge-ajqsdxv8j-wscott2k26s-projects.vercel.app/?_vercel_share=vA5mwwN7hnjQWAVszVgVpW0gTtZzepZ0'
           EXPECT_API: '0'
         run: node scripts/browser-smoke.mjs
