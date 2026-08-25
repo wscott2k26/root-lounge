@@ -22,8 +22,8 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Exercise protected Vercel preview with diagnostics
+      - name: Exercise frozen hardened Vercel preview
         env:
-          ROOT_LOUNGE_URL: 'https://root-lounge-ajqsdxv8j-wscott2k26s-projects.vercel.app/?_vercel_share=vA5mwwN7hnjQWAVszVgVpW0gTtZzepZ0'
-          EXPECT_API: '0'
+          ROOT_LOUNGE_URL: 'https://root-lounge-18w7fik3b-wscott2k26s-projects.vercel.app/?_vercel_share=iel9zx9gL5qONREngoFL2WW8DZAibBjd'
+          EXPECT_API: '1'
         run: node scripts/browser-smoke.mjs
