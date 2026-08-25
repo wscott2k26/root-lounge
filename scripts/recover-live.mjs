@@ -12,6 +12,7 @@ const ASSETS = {
   'gui.js': 'https://root-lounge-gui-js.vercel.app/gui.js',
   'gui.css': 'https://root-lounge-gui-css.vercel.app/gui.css',
 };
+const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 async function fetchBytes(url) {
   const response = await fetch(url, {
@@ -44,14 +45,52 @@ function extractAtobPayload(source) {
   if (end < 0) throw new Error('Could not find closing payload quote in loader.js');
   const rawPayload = source.slice(quotePos + 1, end).trim();
   if (!rawPayload.startsWith('H4sI')) throw new Error(`Unexpected loader payload prefix: ${rawPayload.slice(0, 12)}`);
-
   const invalid = [...rawPayload.matchAll(/[^A-Za-z0-9+/=]/g)].map(m => ({ char: m[0], index: m.index }));
-  if (invalid.length) {
-    console.warn(`Sanitizing ${invalid.length} non-Base64 character(s) from live loader payload.`);
-    console.warn('First invalid characters:', invalid.slice(0, 10));
+  return { rawPayload, invalid };
+}
+
+function tryHtmlFromPayload(payload) {
+  try {
+    const html = gunzipSync(Buffer.from(payload, 'base64'));
+    const text = html.toString('utf8');
+    if (!/^\s*<!doctype html/i.test(text)) return null;
+    if (!/<title>Root Lounge<\/title>/i.test(text)) return null;
+    return html;
+  } catch {
+    return null;
   }
-  const payload = rawPayload.replace(/[^A-Za-z0-9+/=]/g, '');
-  return { rawPayload, payload, invalid };
+}
+
+function repairPayload(rawPayload, invalid) {
+  const direct = tryHtmlFromPayload(rawPayload);
+  if (direct) return { payload: rawPayload, html: direct, repairs: [] };
+
+  if (invalid.length === 1) {
+    const { index, char } = invalid[0];
+    for (const replacement of BASE64_ALPHABET) {
+      const candidate = `${rawPayload.slice(0, index)}${replacement}${rawPayload.slice(index + 1)}`;
+      const html = tryHtmlFromPayload(candidate);
+      if (html) {
+        return {
+          payload: candidate,
+          html,
+          repairs: [{ index, from: char, to: replacement, strategy: 'single-character substitution' }],
+        };
+      }
+    }
+
+    const removed = `${rawPayload.slice(0, index)}${rawPayload.slice(index + 1)}`;
+    const removedHtml = tryHtmlFromPayload(removed);
+    if (removedHtml) {
+      return {
+        payload: removed,
+        html: removedHtml,
+        repairs: [{ index, from: char, to: '', strategy: 'remove stray character' }],
+      };
+    }
+  }
+
+  throw new Error(`Could not mathematically repair loader payload; invalid count=${invalid.length}`);
 }
 
 await mkdir(OUT, { recursive: true });
@@ -67,18 +106,20 @@ await writeFile(new URL('loader.js', OUT), loader);
 manifest.files['loader.js'] = { bytes: loader.length, sha256: sha256(loader), url: `${ROOT}/loader.js` };
 
 const loaderText = loader.toString('utf8');
-const { rawPayload, payload, invalid } = extractAtobPayload(loaderText);
+const { rawPayload, invalid } = extractAtobPayload(loaderText);
+console.log(`Live loader payload length: ${rawPayload.length}`);
+if (invalid.length) console.warn('Invalid Base64 characters:', invalid);
+const repaired = repairPayload(rawPayload, invalid);
+console.log('Loader repair:', repaired.repairs.length ? repaired.repairs : 'none required');
 manifest.loaderRepair = {
   originalCharacters: rawPayload.length,
-  sanitizedCharacters: payload.length,
-  removedCharacters: invalid,
+  repairedCharacters: repaired.payload.length,
+  invalidCharactersFound: invalid,
+  repairs: repaired.repairs,
 };
-const html = gunzipSync(Buffer.from(payload, 'base64'));
-if (!/^\s*<!doctype html/i.test(html.toString('utf8'))) {
-  throw new Error('Recovered loader payload decompressed but did not produce an HTML document.');
-}
-await writeFile(new URL('index.html', OUT), html);
-manifest.files['index.html'] = { bytes: html.length, sha256: sha256(html), source: 'decoded and repaired from loader.js' };
+
+await writeFile(new URL('index.html', OUT), repaired.html);
+manifest.files['index.html'] = { bytes: repaired.html.length, sha256: sha256(repaired.html), source: 'mathematically repaired and decoded from loader.js' };
 
 for (const [name, url] of Object.entries(ASSETS)) {
   const bytes = await fetchBytes(url);
