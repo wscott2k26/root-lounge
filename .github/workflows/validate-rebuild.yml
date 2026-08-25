@@ -25,7 +25,7 @@ jobs:
           node-version: '22'
       - name: Validate reconstructed shell contract
         run: node scripts/validate-rebuild.mjs
-      - name: Check recovered frontend JavaScript
+      - name: Check hardened recovered frontend JavaScript
         run: |
           node --check recovered-live/dom-utils.js
           node --check recovered-live/app1.js
