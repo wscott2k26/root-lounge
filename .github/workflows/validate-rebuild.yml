@@ -9,6 +9,7 @@ on:
       - 'recovered-live/**'
       - 'api/**'
       - 'scripts/validate-rebuild.mjs'
+      - 'scripts/social-contract.mjs'
       - '.github/workflows/validate-rebuild.yml'
 
 permissions:
@@ -25,6 +26,8 @@ jobs:
           node-version: '22'
       - name: Validate reconstructed shell contract
         run: node scripts/validate-rebuild.mjs
+      - name: Validate premium social contract
+        run: node scripts/social-contract.mjs
       - name: Check hardened recovered frontend JavaScript
         run: |
           node --check recovered-live/dom-utils.js
@@ -33,6 +36,7 @@ jobs:
           node --check recovered-live/app3.js
           node --check recovered-live/gui.js
           node --check recovered-live/helper.js
+          node --check recovered-live/social.js
       - name: Check rebuilt API JavaScript
         run: |
           node --check api/config.js
