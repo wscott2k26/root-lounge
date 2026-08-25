@@ -1,0 +1,29 @@
+name: Smoke Vercel Root Lounge preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/preview-vercel-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  preview-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependency
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Exercise protected Vercel preview
+        env:
+          ROOT_LOUNGE_URL: 'https://root-lounge-7ecx0qami-wscott2k26s-projects.vercel.app/?_vercel_share=13zTIpbyHZNtwrfMhnZwX46PkhIoBGaD'
+          EXPECT_API: '1'
+        run: node scripts/browser-smoke.mjs
