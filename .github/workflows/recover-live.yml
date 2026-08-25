@@ -1,0 +1,48 @@
+name: Recover live Root Lounge source
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/recover-live.yml'
+      - 'scripts/recover-live.mjs'
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Recover public production source
+        run: node scripts/recover-live.mjs
+
+      - name: Verify recovered JavaScript syntax
+        run: |
+          node --check recovered-live/app1.js
+          node --check recovered-live/app2.js
+          node --check recovered-live/app3.js
+          node --check recovered-live/gui.js
+
+      - name: Commit recovered source
+        shell: bash
+        run: |
+          if git diff --quiet -- recovered-live && [ -z "$(git status --porcelain recovered-live)" ]; then
+            echo 'No recovery changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add recovered-live
+          git commit -m 'Recover live Root Lounge production source'
+          git push
