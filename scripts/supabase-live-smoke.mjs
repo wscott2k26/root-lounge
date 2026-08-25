@@ -2,9 +2,9 @@ import { createClient } from '@supabase/supabase-js';
 import assert from 'node:assert/strict';
 import { resolve4, resolve6 } from 'node:dns/promises';
 
-const url='https://wfjkuajzkotihcpsxxgz.supabase.co';
+const url='https://hcfixfhgmjnxbmkrhmhx.supabase.co';
 const host=new URL(url).hostname;
-const key='sb_publishable_i5L0S1ucIzFXVYN5d8TWBw_hHYNC2Us';
+const key='sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
 
 const dns={v4:[],v6:[],errors:[]};
 try{dns.v4=await resolve4(host);}catch(error){dns.errors.push(`A: ${error.code||error.message}`);}
