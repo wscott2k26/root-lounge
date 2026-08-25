@@ -1,0 +1,47 @@
+name: Onboarding help and shared backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'recovered-live/onboarding.js'
+      - 'recovered-live/onboarding.css'
+      - 'api/config.js'
+      - 'api/health.js'
+      - 'scripts/onboarding-browser.mjs'
+      - 'scripts/supabase-public-config.test.mjs'
+      - '.github/workflows/onboarding-help.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Public Supabase client contract
+        run: node scripts/supabase-public-config.test.mjs
+      - name: Install browser test dependency
+        if: always()
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start Root Lounge locally
+        if: always()
+        run: |
+          python3 -m http.server 4173 > /tmp/root-lounge-onboarding.log 2>&1 &
+          for i in {1..20}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/root-lounge-onboarding.log
+          exit 1
+      - name: First-run tour and Help center contract
+        if: always()
+        env:
+          ROOT_LOUNGE_URL: http://127.0.0.1:4173/
+        run: node scripts/onboarding-browser.mjs
