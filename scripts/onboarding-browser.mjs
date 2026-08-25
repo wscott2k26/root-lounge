@@ -5,11 +5,31 @@ const url = process.env.ROOT_LOUNGE_URL || 'http://127.0.0.1:4173/';
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext();
 const page = await context.newPage();
+const pageErrors=[];
+const consoleErrors=[];
+page.on('pageerror',error=>pageErrors.push(String(error)));
+page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text());});
 
 try {
   await page.goto(url, { waitUntil: 'networkidle' });
 
-  await page.waitForSelector('#helpBtn', { timeout: 5000 });
+  try {
+    await page.waitForSelector('#helpBtn', { timeout: 5000 });
+  } catch (error) {
+    const diagnostics=await page.evaluate(()=>({
+      href:location.href,
+      title:document.title,
+      readyState:document.readyState,
+      hasGuiMeta:typeof GUI_META!=='undefined',
+      hasSetGuiView:typeof setGuiView==='function',
+      hasOnboardingScript:Boolean(document.querySelector('script[data-root-lounge-onboarding]')),
+      onboardingScriptText:(document.querySelector('script[data-root-lounge-onboarding]')?.textContent||'').slice(0,180),
+      headerControls:Boolean(document.querySelector('.header-controls')),
+      bodyText:(document.body?.innerText||'').slice(0,450)
+    }));
+    throw new Error(`Help button did not boot. Diagnostics=${JSON.stringify(diagnostics)} PageErrors=${JSON.stringify(pageErrors)} ConsoleErrors=${JSON.stringify(consoleErrors)} Original=${error.message}`);
+  }
+
   await page.waitForSelector('#tourOverlay:not([hidden])', { timeout: 5000 });
   assert.equal((await page.locator('#tourStepCount').textContent()).trim(), '1 / 5');
 
@@ -35,6 +55,7 @@ try {
   await page.waitForSelector('#tourOverlay:not([hidden])', { timeout: 5000 });
   assert.equal((await page.locator('#tourStepCount').textContent()).trim(), '1 / 5');
 
+  assert.equal(pageErrors.length,0,`Page errors during onboarding: ${pageErrors.join(' | ')}`);
   console.log('ROOT LOUNGE ONBOARDING/HELP BROWSER CONTRACT: PASS');
 } finally {
   await browser.close();
