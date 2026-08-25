@@ -22,8 +22,12 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Exercise frozen hardened Vercel preview
+      - name: Exercise first-run onboarding on Vercel preview
         env:
-          ROOT_LOUNGE_URL: 'https://root-lounge-18w7fik3b-wscott2k26s-projects.vercel.app/?_vercel_share=iel9zx9gL5qONREngoFL2WW8DZAibBjd'
+          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=YmhhvT4rAXj4Lt6vsdiITAhfIN6XQhpM'
+        run: node scripts/onboarding-browser.mjs
+      - name: Exercise returning-user Vercel preview and APIs
+        env:
+          ROOT_LOUNGE_URL: 'https://root-lounge-6yhcg1aka-wscott2k26s-projects.vercel.app/?_vercel_share=YmhhvT4rAXj4Lt6vsdiITAhfIN6XQhpM'
           EXPECT_API: '1'
         run: node scripts/browser-smoke.mjs
