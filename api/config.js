@@ -10,8 +10,8 @@ const looksLikeStripeSecret = (value = '') => /^(sk_test_|sk_live_)/.test(String
 // These are public browser-client identifiers, not admin secrets. Environment
 // variables still override them when a future migration points Root Lounge at a
 // different Supabase project.
-const PUBLIC_SUPABASE_URL = 'https://wfjkuajzkotihcpsxxgz.supabase.co';
-const PUBLIC_SUPABASE_KEY = 'sb_publishable_i5L0S1ucIzFXVYN5d8TWBw_hHYNC2Us';
+const PUBLIC_SUPABASE_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co';
+const PUBLIC_SUPABASE_KEY = 'sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
 
 export default function handler(req, res) {
   if (req.method !== 'GET') {
