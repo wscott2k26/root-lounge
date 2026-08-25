@@ -18,7 +18,23 @@ await page.waitForSelector('#guiShell',{timeout:20000});
 await page.waitForTimeout(1600);
 
 assert(await page.locator('#guiShell').evaluate(el=>el.classList.contains('active')),'GUI shell did not start active');
-assert(await page.locator('#guiMetricCards .gui-metric').count()===4,'Expected four rendered GUI metric cards');
+const metricCount=await page.locator('#guiMetricCards .gui-metric').count();
+if(metricCount!==4){
+  const diagnostics=await page.evaluate(()=>({
+    href:location.href,
+    title:document.title,
+    readyState:document.readyState,
+    backendLabel:document.getElementById('backendLabel')?.textContent||'',
+    terminalText:(document.getElementById('terminalOutput')?.textContent||'').slice(0,300),
+    scriptSources:[...document.scripts].map(s=>s.src||'[inline]'),
+    hasState:typeof state!=='undefined',
+    hasBoot:typeof boot==='function',
+    hasRenderMetrics:typeof renderMetrics==='function',
+    hasBindGui:typeof bindGui==='function',
+    bodyText:(document.body?.innerText||'').slice(0,500)
+  }));
+  throw new Error(`Expected four rendered GUI metric cards; got ${metricCount}. Diagnostics=${JSON.stringify(diagnostics)} PageErrors=${JSON.stringify(pageErrors)} ConsoleErrors=${JSON.stringify(consoleErrors)}`);
+}
 assert((await page.locator('#guiHandle').textContent()||'').trim().length>0,'GUI handle did not render');
 await page.screenshot({path:'qa/screenshots/gui-overview.png',fullPage:true});
 
@@ -61,9 +77,7 @@ if(expectApi){
     };
     const config=await read('/api/config');
     const health=await read('/api/health');
-    const checkout=await read('/api/create-checkout-session',{
-      method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sku:'caffeine'})
-    });
+    const checkout=await read('/api/create-checkout-session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sku:'caffeine'})});
     return {config,health,checkout};
   });
   assert(api.config.status===200,`/api/config returned ${api.config.status}`);
@@ -77,13 +91,7 @@ if(expectApi){
   console.log(`Checkout behavior: PASS (${api.checkout.status})`);
 }
 
-const meaningfulConsoleErrors=consoleErrors.filter(text=>
-  !text.includes('Failed to load resource')&&
-  !text.includes('404')&&
-  !text.includes('vercel.live')&&
-  !text.includes('feedback.js')&&
-  !text.includes('Content Security Policy')
-);
+const meaningfulConsoleErrors=consoleErrors.filter(text=>!text.includes('Failed to load resource')&&!text.includes('404')&&!text.includes('vercel.live')&&!text.includes('feedback.js')&&!text.includes('Content Security Policy'));
 if(pageErrors.length)throw new Error(`Page errors: ${pageErrors.join(' | ')}`);
 if(meaningfulConsoleErrors.length)throw new Error(`Console errors: ${meaningfulConsoleErrors.join(' | ')}`);
 
