@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#09090b">
+  <meta name="description" content="Root Lounge — a decompression workspace for SysAdmins, SREs, developers, and IT teams.">
+  <title>Root Lounge</title>
+  <link rel="stylesheet" href="/recovered-live/styles.css">
+  <link rel="stylesheet" href="/recovered-live/gui.css">
+</head>
+<body data-theme="emerald">
+  <a class="skip-link" href="#mainWorkspace">Skip to workspace</a>
+
+  <header class="topbar">
+    <div class="brand" aria-label="Root Lounge">
+      <div class="brand-mark" aria-hidden="true">RL</div>
+      <div>
+        <div class="brand-row"><h1>ROOT LOUNGE</h1><span class="badge">RECOVERED v3</span></div>
+        <p><span class="status-dot" aria-hidden="true"></span> Operator decompression workspace</p>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="segmented interface-switch" aria-label="Interface">
+        <button id="guiInterfaceBtn" type="button" class="active">GUI</button>
+        <button id="consoleInterfaceBtn" type="button">Console</button>
+      </div>
+      <div class="segmented" aria-label="Workspace mode">
+        <button id="communityMode" type="button" class="active">Community</button>
+        <button id="corporateMode" type="button">Corporate</button>
+      </div>
+      <label class="field">Theme
+        <select id="themeSelector">
+          <option value="emerald">Emerald</option>
+          <option value="amber">Amber</option>
+          <option value="purple">Purple</option>
+          <option value="blue">Blue</option>
+        </select>
+      </label>
+      <div class="session-chip"><span>SESSION</span><strong id="sessionId">LOCAL</strong></div>
+    </div>
+  </header>
+
+  <div id="modeNotice" class="notice" role="status" aria-live="polite"></div>
+
+  <main id="mainWorkspace">
+    <!-- GUI MODE -->
+    <section id="guiShell" class="interface-shell active" aria-label="Root Lounge graphical workspace">
+      <div class="gui-layout">
+        <aside class="gui-sidebar panel">
+          <div class="sidebar-profile">
+            <div class="gui-avatar" aria-hidden="true">&gt;_</div>
+            <div><strong id="guiHandle">operator</strong><small id="guiModeLabel">Community workspace</small></div>
+          </div>
+          <nav id="guiNav" class="gui-nav" aria-label="GUI workspace navigation">
+            <button type="button" class="active" data-gui-view="overview"><span>⌂</span>Overview</button>
+            <button type="button" data-gui-view="checkin"><span>◫</span>Check-In</button>
+            <button type="button" data-gui-view="incidents"><span>⚠</span>Incidents</button>
+            <button type="button" data-gui-view="recovery"><span>↻</span>Recovery</button>
+            <button type="button" data-gui-view="runbooks"><span>▤</span>Runbooks</button>
+            <button type="button" data-gui-view="funding"><span>◈</span>Funding</button>
+            <button type="button" data-gui-view="settings"><span>⚙</span>Settings</button>
+          </nav>
+          <div class="gui-side-foot">
+            <span id="guiBackendPill" class="gui-backend-pill">LOCAL MODE</span>
+            <p>Keep secrets, customer data, internal hostnames, and confidential incident details out of shared spaces.</p>
+          </div>
+        </aside>
+
+        <section class="gui-content panel">
+          <header class="gui-page-head">
+            <div><span id="guiEyebrow" class="gui-eyebrow">OPERATOR HOME</span><h2 id="guiPageTitle">Overview</h2><p id="guiPageSubtitle">See your current load, recent activity, and recovery options.</p></div>
+            <div class="gui-head-actions">
+              <button id="guiQuickVent" class="gui-secondary" type="button">Log incident</button>
+              <button id="guiQuickCheckin" class="gui-primary" type="button">Check in</button>
+            </div>
+          </header>
+
+          <div class="gui-scroll">
+            <section id="gui-view-overview" class="gui-view active">
+              <article class="gui-hero">
+                <div>
+                  <span class="gui-eyebrow">CURRENT OPERATOR STATE</span>
+                  <h3 id="guiStatusTitle">Loading telemetry…</h3>
+                  <p id="guiStatusText">Root Lounge is preparing your workspace.</p>
+                  <div class="gui-hero-actions">
+                    <button id="guiHeroCheckin" class="gui-primary" type="button">Update check-in</button>
+                    <button id="guiHeroReset" class="gui-secondary" type="button">60-second reset</button>
+                  </div>
+                </div>
+                <div id="guiGauge" class="gui-gauge" style="--gauge:42%"><strong id="guiGaugeValue">42</strong><span>sanity</span></div>
+              </article>
+
+              <div id="guiMetricCards" class="gui-metrics" aria-label="Operator telemetry"></div>
+
+              <div class="gui-two-col">
+                <article class="gui-card">
+                  <div class="gui-card-head"><div><span class="gui-eyebrow">RECENT ACTIVITY</span><h3>Incident queue</h3></div><button class="gui-text-btn" data-gui-jump="incidents" type="button">Open board →</button></div>
+                  <div id="guiRecentIncidents" class="gui-compact-feed"></div>
+                </article>
+                <article class="gui-card">
+                  <div class="gui-card-head"><div><span class="gui-eyebrow">NEXT MOVE</span><h3 id="guiNextMoveTitle">Loading…</h3></div></div>
+                  <div class="gui-next-move"><p id="guiNextMoveText">One clean task at a time.</p>
+                    <div class="gui-mini-actions">
+                      <button id="guiHydrate" type="button">Hydrate</button>
+                      <button id="guiHandoff" type="button">Build handoff</button>
+                      <button id="guiRecoveryMacro" type="button">Recovery macro</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section id="gui-view-checkin" class="gui-view">
+              <div class="gui-intro"><span class="gui-eyebrow">PRIVATE SELF-REPORT</span><h3>How are your systems really doing?</h3><p>These values help Root Lounge suggest a cleaner next move. In local mode they stay in this browser.</p></div>
+              <form id="guiCheckinForm" class="gui-card">
+                <div id="guiCheckinSliders" class="gui-slider-grid"></div>
+                <label class="gui-notes">Operator note
+                  <textarea id="guiCheckinNote" maxlength="300" placeholder="What is consuming your attention right now?"></textarea>
+                </label>
+                <div class="gui-form-actions"><button class="gui-primary" type="submit">Save check-in</button><button id="guiResetCheckin" class="gui-secondary" type="button">Reset sliders</button></div>
+                <p id="guiCheckinMessage" class="form-message" aria-live="polite"></p>
+              </form>
+            </section>
+
+            <section id="gui-view-incidents" class="gui-view">
+              <div class="gui-intro split">
+                <div><span class="gui-eyebrow">BLAMELESS VENT BOARD</span><h3>Incident Board</h3><p>Sanitize the details. Vent the pressure. Keep credentials and confidential infrastructure data out.</p></div>
+                <div class="gui-filter-row"><input id="guiIncidentSearch" type="search" placeholder="Search incidents"><select id="guiIncidentFilter" aria-label="Incident severity"><option value="all">All severities</option><option>Critical</option><option>Warning</option><option>Venting</option><option>Resolved</option></select></div>
+              </div>
+              <form id="guiIncidentForm" class="composer"><label for="guiIncidentInput">Log a sanitized incident</label><div class="composer-row"><input id="guiIncidentInput" maxlength="500" autocomplete="off" placeholder="The deploy did what now…"><button type="submit">Vent safely</button></div><p id="guiIncidentError" class="form-message" aria-live="polite"></p></form>
+              <div id="guiIncidentList" class="feed"></div>
+            </section>
+
+            <section id="gui-view-recovery" class="gui-view">
+              <div class="gui-intro"><span class="gui-eyebrow">OPERATOR RECOVERY</span><h3>Recovery Room</h3><p>Reduce context switching, create a clean handoff, or spend five minutes on exactly one task.</p></div>
+              <div class="gui-recovery-grid">
+                <article class="gui-recovery-card"><span>◉</span><h4>60-second reset</h4><p>A short paced breathing reset.</p><button id="guiBreathe" class="gui-secondary" type="button">Start reset</button></article>
+                <article class="gui-recovery-card"><span>⇄</span><h4>Shift handoff</h4><p>Turn current telemetry and incidents into a copyable handoff.</p><button id="guiBuildHandoff" class="gui-secondary" type="button">Build handoff</button></article>
+                <article class="gui-recovery-card"><span>⌛</span><h4>Single-task focus</h4><p>Five minutes with no tab hopping.</p><button id="guiFocus" class="gui-secondary" type="button">Start focus</button></article>
+              </div>
+              <article class="gui-card">
+                <div class="gui-card-head"><div><span class="gui-eyebrow">PEER CHANNEL</span><h3>Recovery chat</h3></div></div>
+                <div id="guiChatList" class="chat-list" aria-live="polite"></div>
+                <form id="guiChatForm" class="composer compact-composer"><label for="guiChatInput">Message</label><div class="composer-row"><input id="guiChatInput" maxlength="700" autocomplete="off" placeholder="Keep it sanitized and human."><button type="submit">Send</button></div><p id="guiChatError" class="form-message" aria-live="polite"></p></form>
+              </article>
+            </section>
+
+            <section id="gui-view-runbooks" class="gui-view">
+              <div class="gui-intro"><span class="gui-eyebrow">BLAMELESS KNOWLEDGE BASE</span><h3>Runbooks</h3><p>Practical defaults for high-pressure operations. Verify commands and operational details in your real environment before acting.</p></div>
+              <div id="guiRunbookGrid" class="runbook-grid"></div>
+            </section>
+
+            <section id="gui-view-funding" class="gui-view">
+              <div class="gui-intro"><span class="gui-eyebrow">SUSTAIN THE LOUNGE</span><h3>Funding & operator gear</h3><p>Checkout stays disabled until the correct Root Lounge Stripe account is connected server-side.</p></div>
+              <div id="guiProductGrid" class="product-grid"></div>
+              <article class="corporate-card"><div><h3>Root Lounge Corporate</h3><p>Private organization-scoped workspace when billing and an organization are configured.</p></div><button id="guiCorporateCheckout" type="button">Corporate — $49/mo</button></article>
+              <p id="guiCheckoutMessage" class="form-message" aria-live="polite"></p>
+            </section>
+
+            <section id="gui-view-settings" class="gui-view">
+              <div class="gui-intro"><span class="gui-eyebrow">WORKSPACE CONTROL</span><h3>Settings</h3><p>Manage your anonymous handle, local data, backend readiness, and privacy information.</p></div>
+              <div class="gui-settings-grid">
+                <article class="gui-settings-card"><h4>Operator identity</h4><p>Your handle is not a promise of anonymity from infrastructure providers.</p><form id="guiHandleForm" class="gui-inline-form"><input id="guiHandleInput" maxlength="18" autocomplete="off" placeholder="operator_handle"><button type="submit">Save</button></form><p id="guiHandleMessage" class="form-message"></p></article>
+                <article class="gui-settings-card"><h4>Backend status</h4><dl class="gui-status-list"><div><dt>Session</dt><dd id="guiSessionStatus">Checking…</dd></div><div><dt>Supabase</dt><dd id="guiSupabaseStatus">Checking…</dd></div><div><dt>Stripe</dt><dd id="guiStripeStatus">Checking…</dd></div><div><dt>Corporate org</dt><dd id="guiOrgStatus">Checking…</dd></div></dl></article>
+                <article class="gui-settings-card"><h4>Your data</h4><p>Export the current Root Lounge view or clear local browser data.</p><div class="gui-form-actions"><button id="guiExport" class="gui-secondary" type="button">Export JSON</button><button id="guiClear" class="gui-danger" type="button">Clear local data</button></div></article>
+                <article class="gui-settings-card"><h4>Privacy & safety</h4><p>Review what local mode, Supabase mode, payments, and crisis interception do.</p><button id="guiPrivacy" class="gui-secondary" type="button">Privacy details</button></article>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- CONSOLE MODE -->
+    <section id="consoleShell" class="interface-shell" aria-label="Root Lounge console workspace">
+      <div class="workspace">
+        <div class="left-stack">
+          <section class="panel terminal-panel">
+            <header class="window-bar"><span id="terminalTitle">sh — guest@root-lounge</span><span class="sim-label">SIMULATED SHELL</span></header>
+            <div id="terminalOutput" class="terminal-output" aria-live="polite" aria-label="Terminal output"></div>
+            <form id="terminalForm" class="terminal-input-row"><label id="terminalPrompt" for="terminalInput">guest@root-lounge:~#</label><input id="terminalInput" autocomplete="off" spellcheck="false" aria-label="Terminal command" placeholder="type help"></form>
+          </section>
+          <section class="panel connection-panel"><header class="panel-heading"><h2>Mock SSH registry</h2><span>SIMULATION ONLY</span></header><div id="connectionList" class="connection-grid"></div></section>
+        </div>
+
+        <section class="panel right-panel">
+          <nav id="tabs" class="tabs" aria-label="Console workspace views">
+            <button class="active" type="button" data-view="telemetry">Telemetry</button>
+            <button type="button" data-view="incidents">Incidents</button>
+            <button type="button" data-view="recovery">Recovery</button>
+            <button type="button" data-view="wiki">Wiki</button>
+            <button type="button" data-view="funding">Funding</button>
+          </nav>
+          <div class="view-wrap">
+            <section id="view-telemetry" class="view active">
+              <div class="section-heading"><div><h2>Human telemetry</h2><p>Self-reported operator state—not medical monitoring.</p></div><span class="ref">LOCAL / SHARED</span></div>
+              <div id="metricsGrid" class="metrics-grid"></div>
+              <div class="action-grid">
+                <button id="hydrateBtn" class="action-card" type="button"><span>💧</span><strong>Hydrate</strong><small>+10 hydration</small></button>
+                <button id="caffeineBtn" class="action-card" type="button"><span>☕</span><strong>Caffeine</strong><small>Boost with jitter</small></button>
+                <button id="breatheBtn" class="action-card" type="button"><span>◉</span><strong>Reset</strong><small>60 seconds</small></button>
+                <button id="recoveryBtn" class="action-card" type="button"><span>↻</span><strong>Recovery macro</strong><small>Simulated reset</small></button>
+              </div>
+            </section>
+
+            <section id="view-incidents" class="view">
+              <div class="section-heading"><div><h2>Incident lounge</h2><p>Sanitized operator vents and support patches.</p></div><span id="incidentScope" class="ref">Local browser</span></div>
+              <form id="incidentForm" class="composer"><label for="incidentInput">Vent without leaking secrets</label><div class="composer-row"><input id="incidentInput" maxlength="500" autocomplete="off" placeholder="Sanitized incident summary"><button type="submit">Log vent</button></div><p id="incidentError" class="form-message"></p></form>
+              <div id="incidentList" class="feed"></div>
+            </section>
+
+            <section id="view-recovery" class="view">
+              <div class="section-heading"><div><h2>Recovery room</h2><p>Peer chat for sanitized operator conversation.</p></div><span class="ref">NO SECRETS</span></div>
+              <div id="chatList" class="chat-list"></div>
+              <form id="chatForm" class="composer compact-composer"><label for="chatInput">Message</label><div class="composer-row"><input id="chatInput" maxlength="700" autocomplete="off" placeholder="Message the room"><button type="submit">Send</button></div><p id="chatError" class="form-message"></p></form>
+            </section>
+
+            <section id="view-wiki" class="view">
+              <div class="section-heading"><div><h2>Operator wiki</h2><p>Fast reminders, not substitutes for your production runbooks.</p></div><span class="ref">VERIFY FIRST</span></div>
+              <div class="runbook-grid">
+                <article><h3>Memory leak alert</h3><p>Capture diagnostics before restart; prefer graceful termination and document impact.</p><code>kill -s SIGTERM &lt;pid&gt;</code></article>
+                <article><h3>Friday deployment gate</h3><p>Require staging evidence, rollback steps, an owner, and an observation window.</p><code>change --verify --rollback-ready</code></article>
+                <article><h3>Network dropout triage</h3><p>Start local: interface, route, DNS, gateway, path, then upstream.</p><code>ip route · dig · traceroute</code></article>
+                <article><h3>Credential leak response</h3><p>Revoke first, rotate second, investigate exposure, then document.</p><code>revoke → rotate → audit</code></article>
+              </div>
+            </section>
+
+            <section id="view-funding" class="view">
+              <div class="section-heading"><div><h2>Funding</h2><p>Stripe-hosted checkout only when the correct account is configured.</p></div><span class="ref">SERVER-SIDE</span></div>
+              <div id="productGrid" class="product-grid"></div>
+              <article class="corporate-card"><div><h3>Root Lounge Corporate</h3><p>Private organization workspace.</p></div><button type="button" data-sku="corporate_monthly">Corporate — $49/mo</button></article>
+              <p id="checkoutMessage" class="form-message"></p>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer><span id="backendLabel">Starting Root Lounge…</span><button id="privacyBtn" type="button">Privacy & safety</button></footer>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+    <section id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-head"><h2 id="modalTitle">Root Lounge</h2><button id="modalClose" type="button" aria-label="Close dialog">×</button></header>
+      <div id="modalBody" class="modal-body"></div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/recovered-live/dom-utils.js"></script>
+  <script src="/recovered-live/app1.js"></script>
+  <script src="/recovered-live/app2.js"></script>
+  <script src="/recovered-live/app3.js"></script>
+  <script src="/recovered-live/gui.js"></script>
+  <script src="/recovered-live/helper.js"></script>
+</body>
+</html>
