@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const index = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+const helper = await readFile(new URL('../recovered-live/helper.js', import.meta.url), 'utf8');
 const social = await readFile(new URL('../recovered-live/social.js', import.meta.url), 'utf8');
 const css = await readFile(new URL('../recovered-live/social.css', import.meta.url), 'utf8');
 
-assert.match(index, /recovered-live\/social\.css/, 'Root Lounge must load the community stylesheet');
-assert.match(index, /recovered-live\/social\.js/, 'Root Lounge must load the community runtime');
+assert.match(helper, /recovered-live\/social\.css/, 'Root Lounge must load the community stylesheet');
+assert.match(helper, /recovered-live\/social\.js/, 'Root Lounge must load the community runtime');
 
 for (const contract of [
   'data-gui-view="community"',
