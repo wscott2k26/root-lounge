@@ -3,8 +3,8 @@ const isPlaceholder = (value = '') => {
   return !v || /^(paste_|your_|replace_|changeme|placeholder)/i.test(v);
 };
 
-const PUBLIC_SUPABASE_URL = 'https://wfjkuajzkotihcpsxxgz.supabase.co';
-const PUBLIC_SUPABASE_KEY = 'sb_publishable_i5L0S1ucIzFXVYN5d8TWBw_hHYNC2Us';
+const PUBLIC_SUPABASE_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co';
+const PUBLIC_SUPABASE_KEY = 'sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
 
 const diagnostics = () => {
   const stripeSecret = String(process.env.STRIPE_SECRET_KEY || '').trim();
