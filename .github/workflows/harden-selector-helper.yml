@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/harden-selector-helper.yml'
+      - 'scripts/harden-selector-helper.mjs'
 
 permissions:
   contents: write
