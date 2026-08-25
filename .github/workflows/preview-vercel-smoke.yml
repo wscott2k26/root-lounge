@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/preview-vercel-smoke.yml'
       - 'scripts/shared-backend-browser.mjs'
+      - 'scripts/onboarding-browser.mjs'
+      - 'scripts/browser-smoke.mjs'
 
 permissions:
   contents: read
