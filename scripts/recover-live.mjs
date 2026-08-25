@@ -38,9 +38,14 @@ await writeFile(new URL('loader.js', OUT), loader);
 manifest.files['loader.js'] = { bytes: loader.length, sha256: sha256(loader), url: `${ROOT}/loader.js` };
 
 const loaderText = loader.toString('utf8');
-const match = loaderText.match(/atob\(["']([A-Za-z0-9+/=]+)["']\)/);
-if (!match) throw new Error('Could not locate compressed HTML payload in loader.js');
-const html = gunzipSync(Buffer.from(match[1], 'base64'));
+const direct = loaderText.match(/atob\s*\(\s*\\?["']([A-Za-z0-9+/=]+)\\?["']\s*\)/s);
+const fallback = loaderText.match(/H4sI[A-Za-z0-9+/=]{1000,}/);
+const payload = direct?.[1] ?? fallback?.[0];
+if (!payload) {
+  console.error('loader.js prefix:', JSON.stringify(loaderText.slice(0, 240)));
+  throw new Error('Could not locate compressed HTML payload in loader.js');
+}
+const html = gunzipSync(Buffer.from(payload, 'base64'));
 await writeFile(new URL('index.html', OUT), html);
 manifest.files['index.html'] = { bytes: html.length, sha256: sha256(html), source: 'decoded from loader.js' };
 
