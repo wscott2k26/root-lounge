@@ -1,0 +1,61 @@
+{
+  "recoveredAt": "2026-08-25T15:53:45.020Z",
+  "source": "https://root-lounge.vercel.app",
+  "files": {
+    "app1.js": {
+      "bytes": 11441,
+      "sha256": "d6680ca5360692633a3811708b8bc58fd0a1c1c609d53bff6fda3295ded693fa",
+      "url": "https://root-lounge-assets-js1.vercel.app/app1.js"
+    },
+    "app2.js": {
+      "bytes": 10529,
+      "sha256": "7f6f863f5635997692f296cf874dc7d71e0ab66dc35cd3dcc898a6e1cbbce723",
+      "url": "https://root-lounge-assets-js2.vercel.app/app2.js"
+    },
+    "app3.js": {
+      "bytes": 9578,
+      "sha256": "2152f1addb43f567759351acf446aa42f3110c3a8a5f92d7d1b4327e4bd55cd0",
+      "url": "https://root-lounge-assets-js3.vercel.app/app3.js"
+    },
+    "styles.css": {
+      "bytes": 12830,
+      "sha256": "8e523830be27bc4875291a824842ae433ca5585d46ade2c71541eb9c5a9dd591",
+      "url": "https://root-lounge-assets-css.vercel.app/styles.css"
+    },
+    "gui.js": {
+      "bytes": 18537,
+      "sha256": "1f82207dcbc0b1ce639a112f3d728102cb4b6d59dd3655f2586c9b11efb2d4fa",
+      "url": "https://root-lounge-gui-js.vercel.app/gui.js"
+    },
+    "gui.css": {
+      "bytes": 10773,
+      "sha256": "03ed069044bfc89247fcb26144c7326c38b65c2adf985519052297462756a3b9",
+      "url": "https://root-lounge-gui-css.vercel.app/gui.css"
+    },
+    "api-config.json": {
+      "bytes": 166,
+      "sha256": "e538f9550244d05234c7f4f790adbf8a8e05569a4187f21837e24f43c7a777b1",
+      "url": "https://root-lounge.vercel.app/api/config"
+    },
+    "api-health.json": {
+      "bytes": 811,
+      "sha256": "bff3076c1bfb388a03faf27465fed82b5cc7ddc7e642a72fb5501143ee1fb249",
+      "url": "https://root-lounge.vercel.app/api/health"
+    },
+    "loader.js": {
+      "bytes": 7326,
+      "sha256": "a1b5760836d1ba8ca0c405eaf6931fe517971c4723785079eeffb3cf5898067c",
+      "url": "https://root-lounge.vercel.app/loader.js"
+    }
+  },
+  "loaderRecovery": {
+    "status": "corrupt",
+    "invalidCharactersFound": [
+      {
+        "char": ")",
+        "index": 491
+      }
+    ],
+    "repairs": []
+  }
+}
