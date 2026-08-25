@@ -32,5 +32,12 @@
     script.dataset.rootLoungeOnboarding='true';
     document.body.append(script);
   }
-  window.addEventListener('DOMContentLoaded',()=>{addCard();loadOnboarding();setTimeout(addCard,1200);});
+  function loadSocial(){
+    if(!document.querySelector('link[data-root-lounge-social]')){
+      const link=document.createElement('link');link.rel='stylesheet';link.href='/recovered-live/social.css';link.dataset.rootLoungeSocial='true';document.head.append(link);
+    }
+    if(document.querySelector('script[data-root-lounge-social]'))return;
+    const script=document.createElement('script');script.src='/recovered-live/social.js';script.dataset.rootLoungeSocial='true';document.body.append(script);
+  }
+  window.addEventListener('DOMContentLoaded',()=>{addCard();loadOnboarding();loadSocial();setTimeout(addCard,1200);});
 })();
