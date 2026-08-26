@@ -1,0 +1,7 @@
+contract_test=required
+android_compile=required
+android_emulator_launch=required
+android_native_controls=required
+ios_compile=required
+ios_simulator_launch=required
+ios_crash_scan=required
