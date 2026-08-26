@@ -5,14 +5,14 @@
     {
       title:'GUI vs Console',
       kicker:'STEP 1 · PICK YOUR WORKSPACE',
-      body:'Use GUI for the everyday Root Lounge experience. Console is the same workspace with a terminal-style interface and a simulated shell for fun—no real SSH or remote commands are executed.',
+      body:'Use GUI for the everyday Uptime Lounge experience. Console is the same workspace with a terminal-style interface and a simulated shell for fun—no real SSH or remote commands are executed.',
       tip:'Start in GUI. Switch to Console later when you want the terminal vibe.',
       view:'overview'
     },
     {
       title:'Check-In',
       kicker:'STEP 2 · READ YOUR OWN TELEMETRY',
-      body:'Set your sanity, caffeine, sleep, and hydration levels. Root Lounge uses that self-report to suggest a cleaner next move. It is operator wellness context, not medical monitoring.',
+      body:'Set your sanity, caffeine, sleep, and hydration levels. Uptime Lounge uses that self-report to suggest a cleaner next move. It is operator wellness context, not medical monitoring.',
       tip:'Update this when your shift changes or after a rough incident.',
       view:'checkin'
     },
@@ -33,7 +33,7 @@
     {
       title:'Local vs Shared',
       kicker:'STEP 5 · KNOW WHERE YOUR DATA GOES',
-      body:'LOCAL means Root Lounge stays in this browser. SHARED means anonymous Supabase authentication + Row Level Security are active for community data. Corporate becomes organization-scoped when a workspace is configured.',
+      body:'LOCAL means Uptime Lounge stays in this browser. SHARED means anonymous Supabase authentication + Row Level Security are active for community data. Corporate becomes organization-scoped when a workspace is configured.',
       tip:'Anonymous is not invisible. Keep secrets and confidential operational details out of shared spaces.',
       view:'settings'
     }
@@ -62,7 +62,7 @@
     button.type='button';
     button.className='root-help-btn';
     button.textContent='? How to use';
-    button.setAttribute('aria-label','How to use Root Lounge');
+    button.setAttribute('aria-label','How to use Uptime Lounge');
     const session=controls.querySelector('.session-chip');
     controls.insertBefore(button,session||null);
     button.addEventListener('click',openHelp);
@@ -80,7 +80,7 @@
 
   function addHelpView(){
     if(el('gui-view-help'))return;
-    if(typeof GUI_META==='object')GUI_META.help=['ROOT LOUNGE GUIDE','How to Use Root Lounge','Start here, learn the workspace, and come back anytime.'];
+    if(typeof GUI_META==='object')GUI_META.help=['UPTIME LOUNGE GUIDE','How to Use Uptime Lounge','Start here, learn the workspace, and come back anytime.'];
 
     const nav=el('guiNav');
     if(nav&&!nav.querySelector('[data-gui-view="help"]')){
@@ -97,8 +97,8 @@
     const start=document.createElement('article');start.className='root-help-start';
     const copy=document.createElement('div');
     const eyebrow=document.createElement('span');eyebrow.className='gui-eyebrow';eyebrow.textContent='START HERE';
-    const heading=document.createElement('h3');heading.textContent='Root Lounge in about 60 seconds';
-    const intro=document.createElement('p');intro.textContent='Root Lounge is a decompression workspace for IT people: check in, vent safely, reset, help another operator, build a handoff, and get back to the work with less chaos.';
+    const heading=document.createElement('h3');heading.textContent='Uptime Lounge in about 60 seconds';
+    const intro=document.createElement('p');intro.textContent='Uptime Lounge is a decompression workspace for IT people: check in, vent safely, reset, help another operator, build a handoff, and get back to the work with less chaos.';
     copy.append(eyebrow,heading,intro);
     const actions=document.createElement('div');actions.className='root-help-actions';
     const tour=document.createElement('button');tour.id='helpStartTour';tour.type='button';tour.className='gui-primary';tour.textContent='Take guided tour';
@@ -108,13 +108,13 @@
     const grid=document.createElement('div');grid.className='root-help-grid';
     [
       ['🖥️','GUI vs Console','GUI is the easiest everyday view. Console gives you the same core features in a terminal-style interface. Its shell and SSH registry are simulations only.'],
-      ['🧠','Check-In','Set sanity, caffeine, sleep, and hydration. Root Lounge uses those values to suggest a next move and help you notice when you are running hot.'],
+      ['🧠','Check-In','Set sanity, caffeine, sleep, and hydration. Uptime Lounge uses those values to suggest a next move and help you notice when you are running hot.'],
       ['⚠️','Incidents','Post sanitized vents, search the incident board, and support other operators. Never post passwords, API keys, customer data, internal hostnames, or confidential incident details.'],
       ['↻','Recovery','Use breathing, single-task focus, recovery chat, and the shift-handoff builder when context switching or incident pressure gets ugly.'],
       ['▤','Runbooks','Fast blameless reminders for common operator situations. They are starting points—verify every command and procedure against your real environment.'],
       ['🌐','Local vs Shared','LOCAL stays in this browser. SHARED uses anonymous Supabase auth + RLS for community data. Corporate is organization-scoped only after a workspace is configured.'],
       ['👥','Community vs Corporate','Community is the shared operator lounge. Corporate is for a private organization workspace. If Corporate is not configured, it safely stays local.'],
-      ['◈','Funding','Merch and Corporate checkout remain disabled until the correct Root Lounge Stripe account is connected. Root Lounge will fail honestly instead of sending you to the wrong billing account.']
+      ['◈','Funding','Merch and Corporate checkout remain disabled until the correct Uptime Lounge Stripe account is connected. Uptime Lounge will fail honestly instead of sending you to the wrong billing account.']
     ].forEach(([icon,title,body])=>grid.append(helpCard(icon,title,body)));
 
     section.append(start,grid);scroll.append(section);
@@ -129,7 +129,7 @@
     if(!overview||!metrics)return;
     const hint=document.createElement('div');hint.id='firstRunHint';hint.className='root-first-hint';
     const copy=document.createElement('div');
-    const strong=document.createElement('strong');strong.textContent='New here? Root Lounge makes more sense in 60 seconds.';
+    const strong=document.createElement('strong');strong.textContent='New here? Uptime Lounge makes more sense in 60 seconds.';
     const sub=document.createElement('span');sub.textContent='Take the tour once, then this hint stays out of your way.';
     copy.append(strong,document.createElement('br'),sub);
     const button=document.createElement('button');button.id='firstRunTourBtn';button.type='button';button.textContent='Show me →';
@@ -141,7 +141,7 @@
     if(el('tourOverlay'))return;
     const overlay=document.createElement('div');overlay.id='tourOverlay';overlay.className='root-tour-overlay';overlay.hidden=true;
     overlay.innerHTML=`<section class="root-tour-card" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
-      <div class="root-tour-head"><strong>ROOT LOUNGE QUICKSTART</strong><span id="tourStepCount">1 / 5</span></div>
+      <div class="root-tour-head"><strong>UPTIME LOUNGE QUICKSTART</strong><span id="tourStepCount">1 / 5</span></div>
       <div class="root-tour-body"><div id="tourKicker" class="root-tour-kicker"></div><h2 id="tourTitle"></h2><p id="tourBody"></p><div id="tourTip" class="root-tour-tip"></div></div>
       <div class="root-tour-actions"><div class="root-tour-actions-left"><button id="tourSkip" class="root-tour-ghost" type="button">Skip tour</button></div><div class="root-tour-actions-right"><button id="tourBack" class="root-tour-secondary" type="button">Back</button><button id="tourNext" class="root-tour-primary" type="button">Next</button><button id="tourDone" class="root-tour-primary" type="button" hidden>Done</button></div></div>
     </section>`;

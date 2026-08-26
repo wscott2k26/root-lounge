@@ -60,7 +60,7 @@ assert(await page.locator('#guiCorporateSetupCard').count()===1,'Recovered corpo
 
 await page.locator('#consoleInterfaceBtn').click();
 assert(await page.locator('#consoleShell').evaluate(el=>el.classList.contains('active')),'Console shell did not activate');
-assert((await page.locator('#terminalOutput').textContent()||'').includes('ROOT LOUNGE'),'Console boot log did not render');
+assert((await page.locator('#terminalOutput').textContent()||'').includes('UPTIME LOUNGE'),'Console boot log did not render');
 await page.locator('#terminalInput').fill('status');
 await page.locator('#terminalForm').evaluate(form=>form.requestSubmit());
 await page.waitForTimeout(150);
@@ -99,7 +99,7 @@ const meaningfulConsoleErrors=consoleErrors.filter(text=>!text.includes('Failed 
 if(pageErrors.length)throw new Error(`Page errors: ${pageErrors.join(' | ')}`);
 if(meaningfulConsoleErrors.length)throw new Error(`Console errors: ${meaningfulConsoleErrors.join(' | ')}`);
 
-console.log('ROOT LOUNGE BROWSER SMOKE: PASS');
+console.log('UPTIME LOUNGE BROWSER SMOKE: PASS');
 console.log(`Target: ${new URL(target).origin}`);
 console.log('GUI render: PASS');
 console.log('Local incident flow: PASS');
