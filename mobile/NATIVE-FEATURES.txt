@@ -1,0 +1,6 @@
+native_share=YES
+haptics=YES
+network_state=YES
+safe_external_links=YES
+local_notification_hook=YES
+native_controls=YES
