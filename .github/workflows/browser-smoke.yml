@@ -2,6 +2,13 @@ name: Browser smoke Root Lounge rebuild
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'recovered-live/**'
+      - 'scripts/browser-smoke.mjs'
+      - '.github/workflows/browser-smoke.yml'
   push:
     branches: [main]
     paths:
@@ -26,6 +33,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Syntax check browser runtimes
+        run: |
+          node --check recovered-live/app1.js
+          node --check recovered-live/app2.js
+          node --check recovered-live/app3.js
+          node --check recovered-live/gui.js
+          node --check recovered-live/social.js
+          node --check recovered-live/demo-social.js
       - name: Install browser test dependency
         run: |
           npm install --no-save playwright@1.55.0
