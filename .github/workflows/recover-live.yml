@@ -2,14 +2,13 @@ name: Recover live Root Lounge source
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/recover-live.yml'
-      - 'scripts/recover-live.mjs'
 
 permissions:
   contents: write
+
+concurrency:
+  group: root-live-recovery-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   recover:
