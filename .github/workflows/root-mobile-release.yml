@@ -1,0 +1,150 @@
+name: Root Lounge Mobile Release Gate
+
+on:
+  push:
+    branches:
+      - release/root-mobile-v1
+      - main
+    paths:
+      - mobile/**
+      - tests/mobile-wrapper-contract.test.mjs
+      - .github/workflows/root-mobile-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: root-mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/mobile-wrapper-contract.test.mjs
+
+  android-runtime:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
+      - name: Compile Root Lounge release APK
+        working-directory: mobile/android
+        run: gradle --no-daemon assembleRelease
+      - name: Enable KVM
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm || true
+      - name: Install and launch real Android package
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: |
+            set -euo pipefail
+            APK=mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
+            test -s "$APK"
+            adb install -r "$APK"
+            adb shell am force-stop com.stormandme.rootlounge
+            adb shell monkey -p com.stormandme.rootlounge -c android.intent.category.LAUNCHER 1
+            sleep 12
+            adb shell uiautomator dump /sdcard/root.xml >/dev/null
+            adb pull /sdcard/root.xml artifacts-root.xml >/dev/null
+            grep -q 'Root Lounge' artifacts-root.xml
+            grep -q 'Share' artifacts-root.xml
+            grep -q 'Refresh' artifacts-root.xml
+            adb shell screencap -p /sdcard/root.png
+            adb pull /sdcard/root.png root-android.png >/dev/null
+            test "$(stat -c%s root-android.png)" -gt 20000
+            ! adb logcat -d | grep -E 'FATAL EXCEPTION.*com.stormandme.rootlounge'
+      - name: Upload Android evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Root-Lounge-Android-Runtime
+          path: |
+            root-android.png
+            artifacts-root.xml
+            mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: warn
+          retention-days: 30
+
+  ios-runtime:
+    needs: contract
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Xcode project
+        working-directory: mobile/ios
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v xcodegen >/dev/null 2>&1; then brew install xcodegen; fi
+          xcodegen generate --spec project.yml
+          test -d RootLounge.xcodeproj
+      - name: Compile Root Lounge iPhone Simulator app
+        working-directory: mobile/ios
+        shell: bash
+        run: |
+          set -euo pipefail
+          DERIVED="$RUNNER_TEMP/RootLoungeDerived"
+          xcodebuild -project RootLounge.xcodeproj -scheme RootLounge -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$DERIVED" CODE_SIGNING_ALLOWED=NO clean build
+          APP="$(find "$DERIVED/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.app' -type d -print -quit)"
+          test -n "$APP"
+          echo "ROOT_APP=$APP" >> "$GITHUB_ENV"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = 'com.stormandme.rootlounge'
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = '1.0.0'
+      - name: Launch real iPhone Simulator package
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); xs=[x for a in d["devices"].values() for x in a if x.get("isAvailable") and "iPhone" in x.get("name","")]; print(xs[0]["udid"] if xs else "")')"
+          test -n "$DEVICE"
+          xcrun simctl boot "$DEVICE" >/dev/null 2>&1 || true
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" "$ROOT_APP"
+          OUT="$(xcrun simctl launch "$DEVICE" com.stormandme.rootlounge)"
+          echo "$OUT"
+          printf '%s' "$OUT" | grep -q 'com.stormandme.rootlounge:'
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot root-ios.png >/dev/null
+          test "$(stat -f%z root-ios.png)" -gt 20000
+          xcrun simctl spawn "$DEVICE" log show --last 120s --style compact --predicate 'process == "Root Lounge"' > root-ios.log 2>&1 || true
+          ! grep -E 'Terminating app|Fatal error|EXC_CRASH' root-ios.log
+          xcrun simctl shutdown "$DEVICE" >/dev/null 2>&1 || true
+      - name: Upload iOS evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Root-Lounge-iOS-Runtime
+          path: |
+            root-ios.png
+            root-ios.log
+          if-no-files-found: warn
+          retention-days: 30
