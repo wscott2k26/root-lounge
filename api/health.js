@@ -3,6 +3,9 @@ const isPlaceholder = (value = '') => {
   return !v || /^(paste_|your_|replace_|changeme|placeholder)/i.test(v);
 };
 
+// Public browser-client identifiers for the production Root Lounge project.
+// Keep these pinned so stale hosting environment variables cannot silently
+// route production health checks to a retired Supabase project.
 const PUBLIC_SUPABASE_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co';
 const PUBLIC_SUPABASE_KEY = 'sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
 
@@ -52,8 +55,8 @@ export default async function handler(req, res) {
   }
 
   const d = diagnostics();
-  const supabaseUrl = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || PUBLIC_SUPABASE_URL).trim();
-  const supabaseKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || PUBLIC_SUPABASE_KEY).trim();
+  const supabaseUrl = PUBLIC_SUPABASE_URL;
+  const supabaseKey = PUBLIC_SUPABASE_KEY;
   const supabaseConfigured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(supabaseUrl)
     && /^(sb_publishable_|eyJ)/.test(supabaseKey) && !isPlaceholder(supabaseKey);
   const supabaseAdminConfigured = d.serviceRole.present && !d.serviceRole.placeholder && d.serviceRole.lengthValid;
