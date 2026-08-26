@@ -17,4 +17,11 @@ for (const file of files) {
   assert.ok(!text.includes(oldRef), `${file} still references the retired Supabase project`);
 }
 
+const config = await readFile('api/config.js', 'utf8');
+const health = await readFile('api/health.js', 'utf8');
+for (const [name, text] of [['api/config.js', config], ['api/health.js', health]]) {
+  assert.ok(!/process\.env\.(?:VITE_)?SUPABASE_URL/.test(text), `${name} allows stale Supabase URL environment variables to override the pinned production project`);
+  assert.ok(!/process\.env\.(?:VITE_)?SUPABASE_PUBLISHABLE_KEY/.test(text), `${name} allows stale publishable-key environment variables to override the pinned production project`);
+}
+
 console.log('ROOT LOUNGE PRODUCTION SUPABASE CONFIG CONTRACT: PASS');
