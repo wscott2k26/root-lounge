@@ -7,9 +7,9 @@ const looksLikeSupabaseUrl = (value = '') => /^https:\/\/[a-z0-9-]+\.supabase\.c
 const looksLikePublishableKey = (value = '') => /^(sb_publishable_|eyJ)/.test(String(value || '').trim());
 const looksLikeStripeSecret = (value = '') => /^(sk_test_|sk_live_)/.test(String(value || '').trim()) && !isPlaceholder(value);
 
-// These are public browser-client identifiers, not admin secrets. Environment
-// variables still override them when a future migration points Root Lounge at a
-// different Supabase project.
+// Public browser-client identifiers for the production Root Lounge project.
+// Keep these pinned so stale hosting environment variables cannot silently
+// route production users to a retired Supabase project.
 const PUBLIC_SUPABASE_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co';
 const PUBLIC_SUPABASE_KEY = 'sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
 
@@ -19,8 +19,8 @@ export default function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed.' });
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || PUBLIC_SUPABASE_KEY;
+  const supabaseUrl = PUBLIC_SUPABASE_URL;
+  const supabaseKey = PUBLIC_SUPABASE_KEY;
   const corporateOrgId = process.env.VITE_CORPORATE_ORG_ID || '';
 
   res.setHeader('Cache-Control', 'no-store');
