@@ -25,7 +25,7 @@ for (const key of [
 const configHandler = await loadHandler('api/config.js');
 const config = await call(configHandler);
 assert.equal(config.statusCode, 200);
-assert.equal(config.payload.supabaseUrl, 'https://wfjkuajzkotihcpsxxgz.supabase.co');
+assert.equal(config.payload.supabaseUrl, 'https://hcfixfhgmjnxbmkrhmhx.supabase.co');
 assert.ok(String(config.payload.supabaseKey || '').startsWith('sb_publishable_'), 'public publishable key should be available without admin secrets');
 
 const healthHandler = await loadHandler('api/health.js');
