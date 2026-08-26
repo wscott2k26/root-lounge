@@ -1,0 +1,28 @@
+name: RootLounge
+options:
+  bundleIdPrefix: com.stormandme
+  deploymentTarget:
+    iOS: '15.0'
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    MARKETING_VERSION: 1.0.0
+    CURRENT_PROJECT_VERSION: 1
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  RootLounge:
+    type: application
+    platform: iOS
+    sources:
+      - RootLounge
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.stormandme.rootlounge
+        PRODUCT_NAME: Root Lounge
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Root Lounge
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        TARGETED_DEVICE_FAMILY: '1,2'
+        SUPPORTS_MACCATALYST: NO
