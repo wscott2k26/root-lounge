@@ -24,3 +24,5 @@ jobs:
         run: npm install --no-save @supabase/supabase-js@2
       - name: Prove anonymous auth and RLS data paths
         run: node scripts/supabase-live-smoke.mjs
+
+# auth recheck trigger 2026-08-26
