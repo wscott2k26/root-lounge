@@ -1,49 +1,77 @@
-name: Validate Root Lounge rebuild
+name: Root Lounge Quality Gate
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: [main]
     paths:
       - 'index.html'
       - 'recovered-live/**'
       - 'api/**'
-      - 'scripts/validate-rebuild.mjs'
-      - 'scripts/social-contract.mjs'
+      - 'scripts/**'
+      - 'vercel.json'
       - '.github/workflows/validate-rebuild.yml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: root-rebuild-${{ github.ref }}
+  group: root-quality-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  validate:
+  quality-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate reconstructed shell contract
-        run: node scripts/validate-rebuild.mjs
-      - name: Validate premium social contract
-        run: node scripts/social-contract.mjs
-      - name: Check hardened recovered frontend JavaScript
+
+      - name: Contract and syntax checks
         run: |
-          node --check recovered-live/dom-utils.js
-          node --check recovered-live/app1.js
-          node --check recovered-live/app2.js
-          node --check recovered-live/app3.js
-          node --check recovered-live/gui.js
-          node --check recovered-live/helper.js
-          node --check recovered-live/social.js
-      - name: Check rebuilt API JavaScript
+          set -euo pipefail
+          node scripts/validate-rebuild.mjs
+          node scripts/social-contract.mjs
+          node scripts/production-config-contract.mjs
+          node scripts/supabase-public-config.test.mjs
+          for f in recovered-live/*.js api/*.js; do
+            [ -f "$f" ] && node --check "$f"
+          done
+
+      - name: Install one browser dependency
         run: |
-          node --check api/config.js
-          node --check api/health.js
-          node --check api/create-checkout-session.js
-          node --check api/stripe-webhook.js
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local QA server
+        run: |
+          python3 -m http.server 4173 > /tmp/root-lounge-quality.log 2>&1 &
+          echo $! > /tmp/root-lounge-quality.pid
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/root-lounge-quality.log
+          exit 1
+
+      - name: Exercise core browser flows
+        env:
+          ROOT_LOUNGE_URL: http://127.0.0.1:4173/
+        run: node scripts/browser-smoke.mjs
+
+      - name: Exercise first-run and help flows
+        env:
+          ROOT_LOUNGE_URL: http://127.0.0.1:4173/
+        run: node scripts/onboarding-browser.mjs
+
+      - name: Upload QA screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: root-lounge-quality-failure
+          path: qa/screenshots
+          if-no-files-found: ignore
+          retention-days: 7
