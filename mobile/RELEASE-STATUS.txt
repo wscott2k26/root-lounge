@@ -1,0 +1,5 @@
+source_wrapper=IMPLEMENTED
+android_runtime=GATED_BY_GITHUB_ACTIONS
+ios_runtime=GATED_BY_GITHUB_ACTIONS
+custom_domain_target=rootlounge.app
+store_signing=ACCOUNT_OWNED_CREDENTIALS_REQUIRED
