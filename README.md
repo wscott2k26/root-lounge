@@ -1,6 +1,8 @@
-# Root Lounge
+# Uptime Lounge
 
-Root Lounge is a dual-interface decompression workspace for SysAdmins, SREs, developers, and IT teams.
+> Formerly developed under the internal project name `root-lounge`. Internal repo, storage, migration, and deployment identifiers remain unchanged intentionally.
+
+Uptime Lounge is a dual-interface decompression workspace for SysAdmins, SREs, developers, and IT teams.
 
 **Live production:** https://root-lounge.vercel.app
 
@@ -30,11 +32,11 @@ The recovery process intentionally retrieves **public application assets only**.
 
 - `recovered-live/` — byte-for-byte public frontend recovered from production by GitHub Actions
 - `scripts/recover-live.mjs` — recovery script
-- `supabase/schema.sql` — recovered Root Lounge production schema
+- `supabase/schema.sql` — recovered Uptime Lounge production schema
 - `recovery/` — historical setup/recovery material
 
 ## Billing safety
 
-Do not commit secret keys. Root Lounge must keep `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` in server-side environment variables only.
+Do not commit secret keys. Uptime Lounge must keep `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` in server-side environment variables only.
 
-The currently connected Stripe context should not be assumed to be the original Root Lounge billing account. Verify the intended Stripe account before changing live billing configuration.
+The currently connected Stripe context should not be assumed to be the original Uptime Lounge billing account. Verify the intended Stripe account before changing live billing configuration.
