@@ -2,6 +2,16 @@
 (() => {
   function ready(){return typeof window.state!=='undefined'||typeof state!=='undefined';}
 
+  function patchShellCopy(){
+    document.title='Root Lounge';
+    const meta=document.querySelector('meta[name="description"]');
+    if(meta)meta.content='Root Lounge — a decompression workspace for SysAdmins, SREs, developers, and IT teams.';
+    const guiFunding=document.querySelector('#gui-view-funding .gui-intro p');
+    if(guiFunding)guiFunding.textContent='The $3 support contribution and $49/month Corporate subscription use live Stripe-hosted checkout. Physical merch stays paused until fulfillment is connected.';
+    const consoleFunding=document.querySelector('#view-funding .section-heading p');
+    if(consoleFunding)consoleFunding.textContent='Live Stripe-hosted support and Corporate checkout. Physical merch stays paused until fulfillment is connected.';
+  }
+
   function addCard(){
     if(document.getElementById('guiCorporateSetupCard'))return;
     const grid=document.querySelector('#gui-view-settings .gui-settings-grid');
@@ -71,6 +81,7 @@
   }
 
   window.addEventListener('DOMContentLoaded',()=>{
+    patchShellCopy();
     addCard();
     loadOnboarding();
     loadSocial();
