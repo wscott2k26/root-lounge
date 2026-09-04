@@ -8,6 +8,10 @@ const PAYMENT_LINKS = Object.freeze({
   cap: 'https://buy.stripe.com/8x214p3Jx6BEgBO5otefC03',
   corporate_monthly: 'https://buy.stripe.com/3cIaEZ3JxbVYcly18defC04',
 });
+const CORE_PAYMENT_LINKS = Object.freeze({
+  caffeine: PAYMENT_LINKS.caffeine,
+  corporate_monthly: PAYMENT_LINKS.corporate_monthly,
+});
 
 const looksLikePaymentLink = value => /^https:\/\/(?:buy|donate)\.stripe\.com\/[A-Za-z0-9]+$/.test(String(value || ''));
 
@@ -17,7 +21,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed.' });
   }
 
-  const paymentLinksReady = Object.values(PAYMENT_LINKS).every(looksLikePaymentLink);
+  const paymentLinksReady = Object.values(CORE_PAYMENT_LINKS).every(looksLikePaymentLink);
   const webhookConfigured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/functions\/v1\/[a-z0-9-]+$/i.test(WEBHOOK_URL);
   const deepChecked = req.query?.deep === '1';
   let supabaseReachable = null;
@@ -35,7 +39,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const results = await Promise.all(Object.values(PAYMENT_LINKS).map(url => fetch(url, { redirect: 'manual' })));
+      const results = await Promise.all(Object.values(CORE_PAYMENT_LINKS).map(url => fetch(url, { redirect: 'manual' })));
       stripeReachable = results.every(response => response.status >= 200 && response.status < 500);
     } catch {
       stripeReachable = false;
@@ -59,12 +63,14 @@ export default async function handler(req, res) {
     corporateProvisioningConfigured: webhookConfigured,
     paymentReady: paymentLinksReady && webhookConfigured,
     billingMode: 'hosted_payment_links',
+    merchFulfillmentReady: false,
     deepChecked,
     supabaseReachable,
     stripeReachable,
     webhookReachable,
     diagnostics: {
-      paymentLinks: Object.fromEntries(Object.entries(PAYMENT_LINKS).map(([sku, url]) => [sku, { configured: looksLikePaymentLink(url) }])),
+      corePaymentLinks: Object.fromEntries(Object.entries(CORE_PAYMENT_LINKS).map(([sku, url]) => [sku, { configured: looksLikePaymentLink(url) }])),
+      merchCheckout: { enabled: false, reason: 'fulfillment_not_connected' },
       webhook: { configured: webhookConfigured },
     },
   });
