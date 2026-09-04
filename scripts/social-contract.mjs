@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 
 const helper = await readFile(new URL('../recovered-live/helper.js', import.meta.url), 'utf8');
+const app3 = await readFile(new URL('../recovered-live/app3.js', import.meta.url), 'utf8');
 const social = await readFile(new URL('../recovered-live/social.js', import.meta.url), 'utf8');
 const css = await readFile(new URL('../recovered-live/social.css', import.meta.url), 'utf8');
 const migrationDir = new URL('../supabase/migrations/', import.meta.url);
@@ -10,8 +11,9 @@ const activityName = migrationNames.find(name=>name.endsWith('_root_lounge_socia
 assert.ok(activityName, 'social activity migration must exist');
 const activity = await readFile(new URL(`../supabase/migrations/${activityName}`, import.meta.url), 'utf8');
 
-assert.match(helper, /recovered-live\/social\.css/, 'Root Lounge must load the community stylesheet');
-assert.match(helper, /recovered-live\/social\.js/, 'Root Lounge must load the community runtime');
+assert.match(app3, /recovered-live\/social\.css/, 'Core app must own the community stylesheet loader');
+assert.match(app3, /recovered-live\/social\.js/, 'Core app must own the community runtime loader');
+assert.ok(!/function loadSocial\(/.test(helper), 'Premium overlay must not duplicate the Community loader');
 
 for (const contract of [
   'data-gui-view="community"',
@@ -35,4 +37,4 @@ for (const trigger of ['community_members_refresh_count','notify_post_reaction',
 }
 assert.ok(activity.includes('touch_conversation_from_message'), 'direct messages must refresh conversation activity time');
 
-console.log('ROOT LOUNGE SOCIAL CONTRACT: PASS');
+console.log('UPTIME LOUNGE SOCIAL CONTRACT: PASS');
