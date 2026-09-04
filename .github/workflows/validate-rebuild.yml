@@ -38,6 +38,7 @@ jobs:
           node scripts/brand-contract.mjs
           node scripts/material-contract.mjs
           node scripts/merch-contract.mjs
+          node scripts/control-contract.mjs
           node scripts/social-contract.mjs
           node scripts/production-config-contract.mjs
           node scripts/supabase-public-config.test.mjs
