@@ -63,7 +63,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({
     ok: paymentLinksReady && webhookConfigured && merchProviderConfigured && deepHealthy,
-    version: '4.0.0-uptime-premium',
+    version: '4.1.0-merch-live',
     brandName: 'Uptime Lounge',
     supabaseConfigured: true,
     stripeConfigured: paymentLinksReady,
@@ -74,8 +74,8 @@ export default async function handler(req, res) {
     merchProvider: 'fourthwall',
     merchProviderConfigured,
     merchFulfillmentReady: merchProviderConfigured,
-    merchCatalogStatus: 'awaiting_products',
-    merchCheckoutEnabled: false,
+    merchCatalogStatus: 'live',
+    merchCheckoutEnabled: true,
     deepChecked,
     supabaseReachable,
     stripeReachable,
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     merchProviderReachable,
     diagnostics: {
       corePaymentLinks: Object.fromEntries(Object.entries(CORE_PAYMENT_LINKS).map(([sku, url]) => [sku, { configured: looksLikePaymentLink(url) }])),
-      merchCheckout: { enabled: false, reason: 'awaiting_products', storeUrl: MERCH_STORE_URL },
+      merchCheckout: { enabled: true, reason: 'live_catalog', storeUrl: MERCH_STORE_URL },
       webhook: { configured: webhookConfigured },
     },
   });
