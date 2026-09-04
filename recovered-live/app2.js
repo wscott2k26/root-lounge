@@ -34,7 +34,7 @@ function subscribeRealtime(){
   if(state.realtime){state.client.removeChannel(state.realtime);state.realtime=null;}if(state.session.backend!=='supabase')return;
   state.realtime=state.client.channel(`root-lounge-${state.mode}-${crypto.randomUUID()}`).on('postgres_changes',{event:'*',schema:'public',table:'incidents',filter:`workspace_mode=eq.${state.mode}`},()=>loadWorkspace().catch(()=>{})).on('postgres_changes',{event:'*',schema:'public',table:'chat_messages',filter:`workspace_mode=eq.${state.mode}`},()=>loadWorkspace().catch(()=>{})).subscribe();
 }
-function showDataError(error){console.error(error);setNotice('Backend request failed. Uptime Lounge kept the current screen intact; check Supabase configuration and policies.');appendLog('Backend request failed; current data preserved.','error');}
+function showDataError(error){console.error(error);setNotice('Backend request failed. Root Lounge kept the current screen intact; check Supabase configuration and policies.');appendLog('Backend request failed; current data preserved.','error');}
 function simulateSSH(host){appendLog(`SIMULATION ONLY: opening mock SSH session to ${host}…`,'warn');setTimeout(()=>{state.sshHost=host;RL$('terminalPrompt').textContent=`root@${host}:~#`;RL$('terminalTitle').textContent=`ssh simulation — root@${host}`;appendLog(`Mock session active for ${host}. No network connection was made. Type "exit" to return.`,'success');},400);}
 function runCommand(raw){
   const normalized=normalize(raw);if(!normalized)return;const prompt=state.sshHost?`root@${state.sshHost}:~#`:'guest@root-lounge:~#';appendLog(`${prompt} ${normalized}`,'user');const lower=normalized.toLowerCase();const [command,...args]=lower.split(' ');
