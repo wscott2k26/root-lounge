@@ -40,9 +40,9 @@
     const config=ready()?state.config||{}:{};
     const merchStore=String(config.merchStoreUrl||MERCH_STORE);
     const intro=document.querySelector('#gui-view-funding .gui-intro p');
-    if(intro)intro.textContent='Support Uptime Lounge, unlock Corporate, or preview the upcoming operator merch collection.';
+    if(intro)intro.textContent='Support Uptime Lounge, unlock Corporate, or shop the live operator merch collection.';
     const consoleIntro=document.querySelector('#view-funding .section-heading p');
-    if(consoleIntro)consoleIntro.textContent='Live support and Corporate checkout, plus Fourthwall-powered merch fulfillment.';
+    if(consoleIntro)consoleIntro.textContent='Live support, Corporate checkout, and Fourthwall-powered merch fulfillment.';
 
     const makeSupportCard=()=>{
       const card=document.createElement('article');card.className='product';
@@ -54,11 +54,11 @@
       card.append(h,p,price,button);return card;
     };
     const makeMerchCard=()=>{
-      const card=document.createElement('article');card.className='uptime-merch-state';
+      const card=document.createElement('article');card.className='uptime-merch-state uptime-merch-live';
       const copy=document.createElement('div');
-      const h=document.createElement('h3');h.textContent='Merch collection opening soon';
-      const p=document.createElement('p');p.textContent='Fourthwall fulfillment is connected. Physical products stay closed until the first real Uptime Lounge design is published.';
-      const a=document.createElement('a');a.href=merchStore;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Visit merch shop';
+      const h=document.createElement('h3');h.textContent='Uptime Lounge First Drop';
+      const p=document.createElement('p');p.textContent='Six Fourthwall-fulfilled products are live — premium operator tees, hoodie, bucket hat, mug, and sticker.';
+      const a=document.createElement('a');a.href=merchStore;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Shop the First Drop';
       copy.append(h,p);card.append(copy,a);return card;
     };
 

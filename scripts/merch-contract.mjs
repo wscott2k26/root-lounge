@@ -14,8 +14,8 @@ const retiredPhysicalStripeLinks = [
 assert.ok(config.includes("merchProvider: 'fourthwall'"), 'Config must identify Fourthwall as merch provider');
 assert.ok(config.includes('merchProviderConfigured: true'), 'Config must expose connected Fourthwall provider');
 assert.ok(config.includes('merchFulfillmentReady: true'), 'Config must expose provider fulfillment readiness');
-assert.ok(config.includes("merchCatalogStatus: 'awaiting_products'"), 'Empty catalog must be an explicit awaiting_products state');
-assert.ok(config.includes('merchCheckoutEnabled: false'), 'Physical checkout must remain off while catalog is empty');
+assert.ok(config.includes("merchCatalogStatus: 'live'"), 'Catalog must be live after products and payout activation');
+assert.ok(config.includes('merchCheckoutEnabled: true'), 'Fourthwall merch checkout must be enabled for the live catalog');
 assert.ok(config.includes('https://uptime-lounge-shop.fourthwall.com'), 'Config must expose the Uptime Lounge Fourthwall shop URL');
 
 for (const url of retiredPhysicalStripeLinks) {
@@ -25,11 +25,12 @@ for (const url of retiredPhysicalStripeLinks) {
 
 assert.ok(health.includes('merchProviderConfigured'), 'Health must report Fourthwall provider readiness');
 assert.ok(health.includes('merchProviderReachable'), 'Deep health must report Fourthwall reachability');
-assert.ok(health.includes('merchCheckoutEnabled: false'), 'Health must report merch checkout disabled while catalog is empty');
-assert.ok(health.includes("merchCatalogStatus: 'awaiting_products'"), 'Health must keep catalog state informational');
-assert.ok(helper.includes('Merch collection opening soon'), 'Funding runtime must explain empty catalog state');
+assert.ok(health.includes('merchCheckoutEnabled: true'), 'Health must report merch checkout enabled');
+assert.ok(health.includes("merchCatalogStatus: 'live'"), 'Health must report live catalog state');
+assert.ok(helper.includes('Uptime Lounge First Drop'), 'Funding runtime must expose the live merch collection');
+assert.ok(helper.includes('Shop the First Drop'), 'Funding runtime must provide the live Fourthwall CTA');
 assert.ok(helper.includes('merchStoreUrl'), 'Funding runtime must consume configured Fourthwall shop URL');
 assert.ok(helper.includes("checkout('caffeine')"), 'Support contribution must remain available');
-assert.ok(!helper.includes("checkout('oom_tee')") && !helper.includes("checkout('hoodie')") && !helper.includes("checkout('cap')"), 'Runtime overlay must not expose physical Stripe checkout');
+assert.ok(!helper.includes("checkout('oom_tee')") && !helper.includes("checkout('hoodie')") && !helper.includes("checkout('cap')"), 'Runtime overlay must not expose retired physical Stripe checkout');
 
 console.log('UPTIME LOUNGE MERCH CONTRACT: PASS');
