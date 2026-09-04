@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#09090b">
-  <meta name="description" content="Uptime Lounge — the break room for people who keep technology running.">
-  <title>Uptime Lounge — IT Community & Operator Reset</title>
+  <meta name="description" content="Root Lounge — a decompression workspace for SysAdmins, SREs, developers, and IT teams.">
+  <title>Root Lounge</title>
   <link rel="stylesheet" href="/recovered-live/styles.css">
   <link rel="stylesheet" href="/recovered-live/gui.css">
 </head>
@@ -13,10 +13,10 @@
   <a class="skip-link" href="#mainWorkspace">Skip to workspace</a>
 
   <header class="topbar">
-    <div class="brand" aria-label="Uptime Lounge">
+    <div class="brand" aria-label="Root Lounge">
       <div class="brand-mark" aria-hidden="true">RL</div>
       <div>
-        <div class="brand-row"><h1>UPTIME LOUNGE</h1><span class="badge">RECOVERED v3</span></div>
+        <div class="brand-row"><h1>ROOT LOUNGE</h1><span class="badge">RECOVERED v3</span></div>
         <p><span class="status-dot" aria-hidden="true"></span> Operator decompression workspace</p>
       </div>
     </div>
@@ -46,7 +46,7 @@
 
   <main id="mainWorkspace">
     <!-- GUI MODE -->
-    <section id="guiShell" class="interface-shell active" aria-label="Uptime Lounge graphical workspace">
+    <section id="guiShell" class="interface-shell active" aria-label="Root Lounge graphical workspace">
       <div class="gui-layout">
         <aside class="gui-sidebar panel">
           <div class="sidebar-profile">
@@ -83,7 +83,7 @@
                 <div>
                   <span class="gui-eyebrow">CURRENT OPERATOR STATE</span>
                   <h3 id="guiStatusTitle">Loading telemetry…</h3>
-                  <p id="guiStatusText">Uptime Lounge is preparing your workspace.</p>
+                  <p id="guiStatusText">Root Lounge is preparing your workspace.</p>
                   <div class="gui-hero-actions">
                     <button id="guiHeroCheckin" class="gui-primary" type="button">Update check-in</button>
                     <button id="guiHeroReset" class="gui-secondary" type="button">60-second reset</button>
@@ -113,7 +113,7 @@
             </section>
 
             <section id="gui-view-checkin" class="gui-view">
-              <div class="gui-intro"><span class="gui-eyebrow">PRIVATE SELF-REPORT</span><h3>How are your systems really doing?</h3><p>These values help Uptime Lounge suggest a cleaner next move. In local mode they stay in this browser.</p></div>
+              <div class="gui-intro"><span class="gui-eyebrow">PRIVATE SELF-REPORT</span><h3>How are your systems really doing?</h3><p>These values help Root Lounge suggest a cleaner next move. In local mode they stay in this browser.</p></div>
               <form id="guiCheckinForm" class="gui-card">
                 <div id="guiCheckinSliders" class="gui-slider-grid"></div>
                 <label class="gui-notes">Operator note
@@ -153,9 +153,9 @@
             </section>
 
             <section id="gui-view-funding" class="gui-view">
-              <div class="gui-intro"><span class="gui-eyebrow">SUSTAIN THE LOUNGE</span><h3>Funding & operator gear</h3><p>Checkout stays disabled until the correct Uptime Lounge Stripe account is connected server-side.</p></div>
+              <div class="gui-intro"><span class="gui-eyebrow">SUSTAIN THE LOUNGE</span><h3>Funding & operator gear</h3><p>Checkout stays disabled until the correct Root Lounge Stripe account is connected server-side.</p></div>
               <div id="guiProductGrid" class="product-grid"></div>
-              <article class="corporate-card"><div><h3>Uptime Lounge Corporate</h3><p>Private organization-scoped workspace when billing and an organization are configured.</p></div><button id="guiCorporateCheckout" type="button">Corporate — $49/mo</button></article>
+              <article class="corporate-card"><div><h3>Root Lounge Corporate</h3><p>Private organization-scoped workspace when billing and an organization are configured.</p></div><button id="guiCorporateCheckout" type="button">Corporate — $49/mo</button></article>
               <p id="guiCheckoutMessage" class="form-message" aria-live="polite"></p>
             </section>
 
@@ -164,7 +164,7 @@
               <div class="gui-settings-grid">
                 <article class="gui-settings-card"><h4>Operator identity</h4><p>Your handle is not a promise of anonymity from infrastructure providers.</p><form id="guiHandleForm" class="gui-inline-form"><input id="guiHandleInput" maxlength="18" autocomplete="off" placeholder="operator_handle"><button type="submit">Save</button></form><p id="guiHandleMessage" class="form-message"></p></article>
                 <article class="gui-settings-card"><h4>Backend status</h4><dl class="gui-status-list"><div><dt>Session</dt><dd id="guiSessionStatus">Checking…</dd></div><div><dt>Supabase</dt><dd id="guiSupabaseStatus">Checking…</dd></div><div><dt>Stripe</dt><dd id="guiStripeStatus">Checking…</dd></div><div><dt>Corporate org</dt><dd id="guiOrgStatus">Checking…</dd></div></dl></article>
-                <article class="gui-settings-card"><h4>Your data</h4><p>Export the current Uptime Lounge view or clear local browser data.</p><div class="gui-form-actions"><button id="guiExport" class="gui-secondary" type="button">Export JSON</button><button id="guiClear" class="gui-danger" type="button">Clear local data</button></div></article>
+                <article class="gui-settings-card"><h4>Your data</h4><p>Export the current Root Lounge view or clear local browser data.</p><div class="gui-form-actions"><button id="guiExport" class="gui-secondary" type="button">Export JSON</button><button id="guiClear" class="gui-danger" type="button">Clear local data</button></div></article>
                 <article class="gui-settings-card"><h4>Privacy & safety</h4><p>Review what local mode, Supabase mode, payments, and crisis interception do.</p><button id="guiPrivacy" class="gui-secondary" type="button">Privacy details</button></article>
               </div>
             </section>
@@ -174,7 +174,7 @@
     </section>
 
     <!-- CONSOLE MODE -->
-    <section id="consoleShell" class="interface-shell" aria-label="Uptime Lounge console workspace">
+    <section id="consoleShell" class="interface-shell" aria-label="Root Lounge console workspace">
       <div class="workspace">
         <div class="left-stack">
           <section class="panel terminal-panel">
@@ -230,7 +230,7 @@
             <section id="view-funding" class="view">
               <div class="section-heading"><div><h2>Funding</h2><p>Stripe-hosted checkout only when the correct account is configured.</p></div><span class="ref">SERVER-SIDE</span></div>
               <div id="productGrid" class="product-grid"></div>
-              <article class="corporate-card"><div><h3>Uptime Lounge Corporate</h3><p>Private organization workspace.</p></div><button type="button" data-sku="corporate_monthly">Corporate — $49/mo</button></article>
+              <article class="corporate-card"><div><h3>Root Lounge Corporate</h3><p>Private organization workspace.</p></div><button type="button" data-sku="corporate_monthly">Corporate — $49/mo</button></article>
               <p id="checkoutMessage" class="form-message"></p>
             </section>
           </div>
@@ -239,11 +239,11 @@
     </section>
   </main>
 
-  <footer><span id="backendLabel">Starting Uptime Lounge…</span><button id="privacyBtn" type="button">Privacy & safety</button></footer>
+  <footer><span id="backendLabel">Starting Root Lounge…</span><button id="privacyBtn" type="button">Privacy & safety</button></footer>
 
   <div id="modalBackdrop" class="modal-backdrop hidden" aria-hidden="true">
     <section id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <header class="modal-head"><h2 id="modalTitle">Uptime Lounge</h2><button id="modalClose" type="button" aria-label="Close dialog">×</button></header>
+      <header class="modal-head"><h2 id="modalTitle">Root Lounge</h2><button id="modalClose" type="button" aria-label="Close dialog">×</button></header>
       <div id="modalBody" class="modal-body"></div>
     </section>
   </div>
