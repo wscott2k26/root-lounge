@@ -39,8 +39,8 @@ export default function handler(req, res) {
     merchProvider: 'fourthwall',
     merchProviderConfigured: true,
     merchFulfillmentReady: true,
-    merchCatalogStatus: 'awaiting_products',
-    merchCheckoutEnabled: false,
+    merchCatalogStatus: 'live',
+    merchCheckoutEnabled: true,
     merchStoreUrl: MERCH_STORE_URL,
   });
 }
