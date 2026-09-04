@@ -7,7 +7,7 @@ const helper = await readFile('recovered-live/helper.js', 'utf8');
 
 const retiredPhysicalStripeLinks = [
   'https://buy.stripe.com/8x28wRfsf0dgfxK049efC01',
-  'https://buy.stripe.com/14AbJ3fs1hk2KY049efC02',
+  'https://buy.stripe.com/14AbJ3fsf1hk2KY049efC02',
   'https://buy.stripe.com/8x214p3Jx6BEgBO5otefC03',
 ];
 
