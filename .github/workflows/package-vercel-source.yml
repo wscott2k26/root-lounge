@@ -1,0 +1,31 @@
+name: Package Root Lounge Vercel Source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/package-vercel-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stage Vercel source
+        run: |
+          set -euo pipefail
+          mkdir -p artifact/api artifact/recovered-live
+          cp index.html vercel.json artifact/
+          cp api/*.js artifact/api/
+          cp recovered-live/*.js recovered-live/*.css artifact/recovered-live/
+      - name: Upload source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: root-lounge-vercel-source
+          path: artifact
+          if-no-files-found: error
+          retention-days: 1
