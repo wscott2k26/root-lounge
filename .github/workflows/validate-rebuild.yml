@@ -9,6 +9,7 @@ on:
       - 'recovered-live/**'
       - 'api/**'
       - 'scripts/**'
+      - 'supabase/**'
       - 'vercel.json'
       - '.github/workflows/validate-rebuild.yml'
 
@@ -37,6 +38,7 @@ jobs:
           node scripts/social-contract.mjs
           node scripts/production-config-contract.mjs
           node scripts/supabase-public-config.test.mjs
+          node scripts/live-billing-contract.mjs
           for f in recovered-live/*.js api/*.js; do
             [ -f "$f" ] && node --check "$f"
           done

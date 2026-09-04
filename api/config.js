@@ -5,13 +5,20 @@ const isPlaceholder = (value = '') => {
 
 const looksLikeSupabaseUrl = (value = '') => /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(String(value || '').trim());
 const looksLikePublishableKey = (value = '') => /^(sb_publishable_|eyJ)/.test(String(value || '').trim());
-const looksLikeStripeSecret = (value = '') => /^(sk_test_|sk_live_)/.test(String(value || '').trim()) && !isPlaceholder(value);
 
 // Public browser-client identifiers for the production Root Lounge project.
 // Keep these pinned so stale hosting environment variables cannot silently
 // route production users to a retired Supabase project.
 const PUBLIC_SUPABASE_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co';
 const PUBLIC_SUPABASE_KEY = 'sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
+
+const paymentLinks = Object.freeze({
+  caffeine: 'https://donate.stripe.com/4gM8wR2Ftf8agBO5otefC00',
+  oom_tee: 'https://buy.stripe.com/8x28wRfsf0dgfxK049efC01',
+  hoodie: 'https://buy.stripe.com/14AbJ3fsf1hk2KY049efC02',
+  cap: 'https://buy.stripe.com/8x214p3Jx6BEgBO5otefC03',
+  corporate_monthly: 'https://buy.stripe.com/3cIaEZ3JxbVYcly18defC04',
+});
 
 export default function handler(req, res) {
   if (req.method !== 'GET') {
@@ -28,6 +35,9 @@ export default function handler(req, res) {
     supabaseUrl: looksLikeSupabaseUrl(supabaseUrl) ? supabaseUrl.replace(/\/$/, '') : '',
     supabaseKey: looksLikePublishableKey(supabaseKey) && !isPlaceholder(supabaseKey) ? supabaseKey : '',
     corporateOrgId: /^[0-9a-f-]{36}$/i.test(corporateOrgId) ? corporateOrgId : '',
-    stripeConfigured: looksLikeStripeSecret(process.env.STRIPE_SECRET_KEY),
+    stripeConfigured: true,
+    billingMode: 'hosted_payment_links',
+    merchEnabled: false,
+    paymentLinks,
   });
 }

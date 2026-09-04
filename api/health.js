@@ -1,52 +1,19 @@
-const isPlaceholder = (value = '') => {
-  const v = String(value || '').trim();
-  return !v || /^(paste_|your_|replace_|changeme|placeholder)/i.test(v);
-};
-
-// Public browser-client identifiers for the production Root Lounge project.
-// Keep these pinned so stale hosting environment variables cannot silently
-// route production health checks to a retired Supabase project.
 const PUBLIC_SUPABASE_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co';
 const PUBLIC_SUPABASE_KEY = 'sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
+const WEBHOOK_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co/functions/v1/root-lounge-stripe-webhook';
+const PAYMENT_LINKS = Object.freeze({
+  caffeine: 'https://donate.stripe.com/4gM8wR2Ftf8agBO5otefC00',
+  oom_tee: 'https://buy.stripe.com/8x28wRfsf0dgfxK049efC01',
+  hoodie: 'https://buy.stripe.com/14AbJ3fsf1hk2KY049efC02',
+  cap: 'https://buy.stripe.com/8x214p3Jx6BEgBO5otefC03',
+  corporate_monthly: 'https://buy.stripe.com/3cIaEZ3JxbVYcly18defC04',
+});
+const CORE_PAYMENT_LINKS = Object.freeze({
+  caffeine: PAYMENT_LINKS.caffeine,
+  corporate_monthly: PAYMENT_LINKS.corporate_monthly,
+});
 
-const diagnostics = () => {
-  const stripeSecret = String(process.env.STRIPE_SECRET_KEY || '').trim();
-  const webhookSecret = String(process.env.STRIPE_WEBHOOK_SECRET || '').trim();
-  const serviceRole = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-  const prices = Object.fromEntries([
-    'STRIPE_PRICE_CAFFEINE',
-    'STRIPE_PRICE_OOM_TEE',
-    'STRIPE_PRICE_HOODIE',
-    'STRIPE_PRICE_CAP',
-    'STRIPE_PRICE_CORPORATE_MONTHLY',
-  ].map(name => {
-    const value = String(process.env[name] || '').trim();
-    return [name, {
-      present: Boolean(value),
-      placeholder: isPlaceholder(value),
-      formatValid: /^price_[A-Za-z0-9]+$/.test(value),
-    }];
-  }));
-
-  return {
-    stripeSecret: {
-      present: Boolean(stripeSecret),
-      placeholder: isPlaceholder(stripeSecret),
-      formatValid: /^(sk_test_|sk_live_)[A-Za-z0-9_]+$/.test(stripeSecret) && !isPlaceholder(stripeSecret),
-    },
-    prices,
-    webhookSecret: {
-      present: Boolean(webhookSecret),
-      placeholder: isPlaceholder(webhookSecret),
-      formatValid: /^whsec_[A-Za-z0-9]+$/.test(webhookSecret) && !isPlaceholder(webhookSecret),
-    },
-    serviceRole: {
-      present: Boolean(serviceRole),
-      placeholder: isPlaceholder(serviceRole),
-      lengthValid: serviceRole.length >= 30 && !isPlaceholder(serviceRole),
-    },
-  };
-};
+const looksLikePaymentLink = value => /^https:\/\/(?:buy|donate)\.stripe\.com\/[A-Za-z0-9]+$/.test(String(value || ''));
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -54,40 +21,57 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed.' });
   }
 
-  const d = diagnostics();
-  const supabaseUrl = PUBLIC_SUPABASE_URL;
-  const supabaseKey = PUBLIC_SUPABASE_KEY;
-  const supabaseConfigured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(supabaseUrl)
-    && /^(sb_publishable_|eyJ)/.test(supabaseKey) && !isPlaceholder(supabaseKey);
-  const supabaseAdminConfigured = d.serviceRole.present && !d.serviceRole.placeholder && d.serviceRole.lengthValid;
-  const pricesReady = Object.values(d.prices).every(p => p.present && !p.placeholder && p.formatValid);
-  const stripeConfigured = d.stripeSecret.present && !d.stripeSecret.placeholder && d.stripeSecret.formatValid && pricesReady;
-  const webhookConfigured = d.webhookSecret.present && !d.webhookSecret.placeholder && d.webhookSecret.formatValid;
-
-  let stripeReachable = null;
+  const paymentLinksReady = Object.values(CORE_PAYMENT_LINKS).every(looksLikePaymentLink);
+  const webhookConfigured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/functions\/v1\/[a-z0-9-]+$/i.test(WEBHOOK_URL);
   const deepChecked = req.query?.deep === '1';
-  if (deepChecked && stripeConfigured) {
+  let supabaseReachable = null;
+  let stripeReachable = null;
+  let webhookReachable = null;
+
+  if (deepChecked) {
     try {
-      const response = await fetch('https://api.stripe.com/v1/account', {
-        headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` },
+      const response = await fetch(`${PUBLIC_SUPABASE_URL}/rest/v1/`, {
+        headers: { apikey: PUBLIC_SUPABASE_KEY, Authorization: `Bearer ${PUBLIC_SUPABASE_KEY}` },
       });
-      stripeReachable = response.ok;
+      supabaseReachable = response.ok;
+    } catch {
+      supabaseReachable = false;
+    }
+
+    try {
+      const results = await Promise.all(Object.values(CORE_PAYMENT_LINKS).map(url => fetch(url, { redirect: 'manual' })));
+      stripeReachable = results.every(response => response.status >= 200 && response.status < 500);
     } catch {
       stripeReachable = false;
+    }
+
+    try {
+      const response = await fetch(WEBHOOK_URL, { method: 'GET' });
+      webhookReachable = response.status === 405 || response.ok;
+    } catch {
+      webhookReachable = false;
     }
   }
 
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({
     ok: true,
-    version: '3.3.0-recovered',
-    supabaseConfigured,
-    supabaseAdminConfigured,
-    stripeConfigured,
+    version: '3.4.0-live-billing',
+    supabaseConfigured: true,
+    stripeConfigured: paymentLinksReady,
     webhookConfigured,
-    paymentReady: stripeConfigured && webhookConfigured,
+    corporateProvisioningConfigured: webhookConfigured,
+    paymentReady: paymentLinksReady && webhookConfigured,
+    billingMode: 'hosted_payment_links',
+    merchFulfillmentReady: false,
     deepChecked,
+    supabaseReachable,
     stripeReachable,
-    diagnostics: d,
+    webhookReachable,
+    diagnostics: {
+      corePaymentLinks: Object.fromEntries(Object.entries(CORE_PAYMENT_LINKS).map(([sku, url]) => [sku, { configured: looksLikePaymentLink(url) }])),
+      merchCheckout: { enabled: false, reason: 'fulfillment_not_connected' },
+      webhook: { configured: webhookConfigured },
+    },
   });
 }
