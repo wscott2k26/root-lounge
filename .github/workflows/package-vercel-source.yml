@@ -22,6 +22,7 @@ jobs:
           cp index.html vercel.json artifact/
           cp api/*.js artifact/api/
           cp recovered-live/*.js recovered-live/*.css artifact/recovered-live/
+          sed -i 's/Uptime Lounge/Root Lounge/g' artifact/recovered-live/social.js
       - name: Upload source artifact
         uses: actions/upload-artifact@v4
         with:
@@ -29,3 +30,5 @@ jobs:
           path: artifact
           if-no-files-found: error
           retention-days: 1
+
+# Final production packaging trigger: 2026-09-04
