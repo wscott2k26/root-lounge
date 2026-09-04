@@ -37,6 +37,7 @@ export default function handler(req, res) {
     corporateOrgId: /^[0-9a-f-]{36}$/i.test(corporateOrgId) ? corporateOrgId : '',
     stripeConfigured: true,
     billingMode: 'hosted_payment_links',
+    merchEnabled: false,
     paymentLinks,
   });
 }
