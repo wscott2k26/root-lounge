@@ -3,13 +3,16 @@ import { readFile } from 'node:fs/promises';
 
 const config = await readFile('api/config.js', 'utf8');
 const health = await readFile('api/health.js', 'utf8');
+const legacyCheckout = await readFile('api/create-checkout-session.js', 'utf8');
+const legacyWebhook = await readFile('api/stripe-webhook.js', 'utf8');
 const app2 = await readFile('recovered-live/app2.js', 'utf8');
 const app3 = await readFile('recovered-live/app3.js', 'utf8');
 const gui = await readFile('recovered-live/gui.js', 'utf8');
 const migration = await readFile('supabase/migrations/20260904035000_root_lounge_live_billing.sql', 'utf8');
-let enforcement = '';
+const enforcement = await readFile('supabase/migrations/20260904043000_root_lounge_entitlement_enforcement.sql', 'utf8');
+let rlsPerf = '';
 try {
-  enforcement = await readFile('supabase/migrations/20260904043000_root_lounge_entitlement_enforcement.sql', 'utf8');
+  rlsPerf = await readFile('supabase/migrations/20260904044000_root_lounge_entitlement_rls_perf.sql', 'utf8');
 } catch {}
 let webhook = '';
 try {
@@ -33,10 +36,16 @@ assert.ok(config.includes('stripeConfigured: true'), 'Hosted payment links shoul
 assert.ok(health.includes("billingMode: 'hosted_payment_links'"), 'Health must report the hosted payment-link billing mode');
 assert.ok(health.includes('webhookConfigured'), 'Health must report webhook readiness');
 
+for (const [name, source] of [['create-checkout-session.js', legacyCheckout], ['stripe-webhook.js', legacyWebhook]]) {
+  assert.ok(source.includes('status(410)'), `${name} must be retired with HTTP 410`);
+  assert.ok(!source.includes('STRIPE_SECRET_KEY'), `${name} must not depend on a legacy Stripe secret`);
+  assert.ok(!source.includes('STRIPE_WEBHOOK_SECRET'), `${name} must not depend on a legacy webhook secret`);
+}
+
 assert.ok(app3.includes('client_reference_id'), 'Checkout must attach the Root Lounge user id as client_reference_id');
 assert.ok(app3.includes('state.config.paymentLinks'), 'Checkout must use configured hosted payment links');
 assert.ok(app3.includes('corporate_entitlements'), 'Client must resolve active corporate entitlement from Supabase');
-assert.ok(!app3.includes("fetch('/api/create-checkout-session'"), 'Frontend must not depend on the Vercel Stripe secret endpoint');
+assert.ok(!app3.includes("fetch('/api/create-checkout-session'"), 'Frontend must not depend on the retired Vercel checkout endpoint');
 for (const [name, source] of [['app2.js', app2], ['app3.js', app3], ['gui.js', gui]]) {
   assert.ok(!/Uptime Lounge|UPTIME LOUNGE/.test(source), `${name} still contains stale Uptime Lounge branding`);
 }
@@ -47,10 +56,12 @@ assert.ok(migration.includes('organization_id uuid'), 'Corporate entitlements mu
 assert.ok(migration.includes('server_secrets'), 'Webhook signing material must have a server-only storage table');
 assert.ok(migration.includes('enable row level security'), 'Billing tables must use RLS');
 
-assert.ok(enforcement, 'Corporate billing enforcement migration is missing');
 assert.ok(enforcement.includes("if p_status = 'active'"), 'Active billing status must restore organization membership');
 assert.ok(enforcement.includes('delete from public.organization_members'), 'Non-active billing status must revoke organization membership');
 assert.ok(enforcement.includes("role = 'owner'"), 'Reactivated corporate subscriptions must restore owner role');
+
+assert.ok(rlsPerf, 'Corporate entitlement RLS performance migration is missing');
+assert.ok(rlsPerf.includes('(select auth.uid())'), 'Corporate entitlement RLS should cache auth.uid() per query');
 
 assert.ok(webhook, 'Supabase Stripe webhook function is missing');
 assert.ok(webhook.includes('stripe-signature'), 'Webhook must verify Stripe signatures');
