@@ -33,8 +33,10 @@ for (const [sku, url] of Object.entries(links)) {
 }
 assert.ok(config.includes('paymentLinks'), 'api/config.js must expose paymentLinks');
 assert.ok(config.includes('stripeConfigured: true'), 'Hosted payment links should mark Stripe configured without a Vercel secret key');
+assert.ok(config.includes('merchEnabled: false'), 'Physical merch checkout must stay disabled until fulfillment is connected');
 assert.ok(health.includes("billingMode: 'hosted_payment_links'"), 'Health must report the hosted payment-link billing mode');
 assert.ok(health.includes('webhookConfigured'), 'Health must report webhook readiness');
+assert.ok(health.includes('merchFulfillmentReady: false'), 'Health must not advertise physical merch as fulfillment-ready');
 
 for (const [name, source] of [['create-checkout-session.js', legacyCheckout], ['stripe-webhook.js', legacyWebhook]]) {
   assert.ok(source.includes('status(410)'), `${name} must be retired with HTTP 410`);
@@ -45,6 +47,8 @@ for (const [name, source] of [['create-checkout-session.js', legacyCheckout], ['
 assert.ok(app3.includes('client_reference_id'), 'Checkout must attach the Root Lounge user id as client_reference_id');
 assert.ok(app3.includes('state.config.paymentLinks'), 'Checkout must use configured hosted payment links');
 assert.ok(app3.includes('corporate_entitlements'), 'Client must resolve active corporate entitlement from Supabase');
+assert.ok(app3.includes('MERCH_SKUS'), 'Client must explicitly identify physical merchandise SKUs');
+assert.ok(app3.includes('Merch checkout is paused until fulfillment is connected.'), 'Client must block unfulfillable merch purchases');
 assert.ok(!app3.includes("fetch('/api/create-checkout-session'"), 'Frontend must not depend on the retired Vercel checkout endpoint');
 for (const [name, source] of [['app2.js', app2], ['app3.js', app3], ['gui.js', gui]]) {
   assert.ok(!/Uptime Lounge|UPTIME LOUNGE/.test(source), `${name} still contains stale Uptime Lounge branding`);
