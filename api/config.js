@@ -6,17 +6,14 @@ const isPlaceholder = (value = '') => {
 const looksLikeSupabaseUrl = (value = '') => /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(String(value || '').trim());
 const looksLikePublishableKey = (value = '') => /^(sb_publishable_|eyJ)/.test(String(value || '').trim());
 
-// Public browser-client identifiers for the production Root Lounge project.
-// Keep these pinned so stale hosting environment variables cannot silently
-// route production users to a retired Supabase project.
+// Public browser-client identifiers for the production Uptime Lounge project.
+// Stable infrastructure ids intentionally remain unchanged underneath the public rebrand.
 const PUBLIC_SUPABASE_URL = 'https://hcfixfhgmjnxbmkrhmhx.supabase.co';
 const PUBLIC_SUPABASE_KEY = 'sb_publishable_fWODBDxboW2FfehqEei_hg_fSo3EIe9';
+const MERCH_STORE_URL = 'https://uptime-lounge-shop.fourthwall.com';
 
 const paymentLinks = Object.freeze({
   caffeine: 'https://donate.stripe.com/4gM8wR2Ftf8agBO5otefC00',
-  oom_tee: 'https://buy.stripe.com/8x28wRfsf0dgfxK049efC01',
-  hoodie: 'https://buy.stripe.com/14AbJ3fsf1hk2KY049efC02',
-  cap: 'https://buy.stripe.com/8x214p3Jx6BEgBO5otefC03',
   corporate_monthly: 'https://buy.stripe.com/3cIaEZ3JxbVYcly18defC04',
 });
 
@@ -32,12 +29,18 @@ export default function handler(req, res) {
 
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({
+    brandName: 'Uptime Lounge',
     supabaseUrl: looksLikeSupabaseUrl(supabaseUrl) ? supabaseUrl.replace(/\/$/, '') : '',
     supabaseKey: looksLikePublishableKey(supabaseKey) && !isPlaceholder(supabaseKey) ? supabaseKey : '',
     corporateOrgId: /^[0-9a-f-]{36}$/i.test(corporateOrgId) ? corporateOrgId : '',
     stripeConfigured: true,
     billingMode: 'hosted_payment_links',
-    merchEnabled: false,
     paymentLinks,
+    merchProvider: 'fourthwall',
+    merchProviderConfigured: true,
+    merchFulfillmentReady: true,
+    merchCatalogStatus: 'awaiting_products',
+    merchCheckoutEnabled: false,
+    merchStoreUrl: MERCH_STORE_URL,
   });
 }

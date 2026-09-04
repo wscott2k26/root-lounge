@@ -1,4 +1,4 @@
-name: Root Lounge Quality Gate
+name: Uptime Lounge Quality Gate
 
 on:
   workflow_dispatch:
@@ -35,6 +35,10 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/validate-rebuild.mjs
+          node scripts/brand-contract.mjs
+          node scripts/material-contract.mjs
+          node scripts/merch-contract.mjs
+          node scripts/control-contract.mjs
           node scripts/social-contract.mjs
           node scripts/production-config-contract.mjs
           node scripts/supabase-public-config.test.mjs
@@ -73,7 +77,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: root-lounge-quality-failure
+          name: uptime-lounge-quality-failure
           path: qa/screenshots
           if-no-files-found: ignore
           retention-days: 7
