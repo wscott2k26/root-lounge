@@ -7,6 +7,10 @@ const app2 = await readFile('recovered-live/app2.js', 'utf8');
 const app3 = await readFile('recovered-live/app3.js', 'utf8');
 const gui = await readFile('recovered-live/gui.js', 'utf8');
 const migration = await readFile('supabase/migrations/20260904035000_root_lounge_live_billing.sql', 'utf8');
+let enforcement = '';
+try {
+  enforcement = await readFile('supabase/migrations/20260904043000_root_lounge_entitlement_enforcement.sql', 'utf8');
+} catch {}
 let webhook = '';
 try {
   webhook = await readFile('supabase/functions/root-lounge-stripe-webhook/index.ts', 'utf8');
@@ -42,6 +46,11 @@ assert.ok(migration.includes('subscription_id text'), 'Corporate entitlements mu
 assert.ok(migration.includes('organization_id uuid'), 'Corporate entitlements must bind access to an organization');
 assert.ok(migration.includes('server_secrets'), 'Webhook signing material must have a server-only storage table');
 assert.ok(migration.includes('enable row level security'), 'Billing tables must use RLS');
+
+assert.ok(enforcement, 'Corporate billing enforcement migration is missing');
+assert.ok(enforcement.includes("if p_status = 'active'"), 'Active billing status must restore organization membership');
+assert.ok(enforcement.includes('delete from public.organization_members'), 'Non-active billing status must revoke organization membership');
+assert.ok(enforcement.includes("role = 'owner'"), 'Reactivated corporate subscriptions must restore owner role');
 
 assert.ok(webhook, 'Supabase Stripe webhook function is missing');
 assert.ok(webhook.includes('stripe-signature'), 'Webhook must verify Stripe signatures');
