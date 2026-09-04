@@ -8,7 +8,7 @@
   function replaceBrandText(value=''){return String(value).replace(BRAND_PATTERN,match=>match===match.toUpperCase()?'UPTIME LOUNGE':PUBLIC_BRAND);}
 
   function loadPremiumStyles(){
-    if(document.querySelector('link[data-uptime-premium]'))return;
+    if(document.querySelector('link[data-uptime-premium],link[href="/recovered-live/premium.css"]'))return;
     const link=document.createElement('link');
     link.rel='stylesheet';
     link.href='/recovered-live/premium.css';
@@ -31,8 +31,7 @@
     root.querySelectorAll?.('[aria-label],[title]').forEach(el=>{
       for(const attr of ['aria-label','title']){
         const current=el.getAttribute(attr);
-        if(current&&BRAND_PATTERN.test(current)){BRAND_PATTERN.lastIndex=0;el.setAttribute(attr,replaceBrandText(current));}
-        BRAND_PATTERN.lastIndex=0;
+        if(current&&/Root Lounge|ROOT LOUNGE/.test(current))el.setAttribute(attr,replaceBrandText(current));
       }
     });
   }
@@ -64,7 +63,7 @@
     };
 
     for(const id of ['productGrid','guiProductGrid']){
-      const grid=document.getElementById(id);if(!grid)return;
+      const grid=document.getElementById(id);if(!grid)continue;
       grid.replaceChildren(makeSupportCard(),makeMerchCard());
     }
   }
@@ -92,12 +91,6 @@
     const script=document.createElement('script');script.src='/recovered-live/onboarding.js';script.dataset.rootLoungeOnboarding='true';document.body.append(script);
   }
 
-  function loadSocial(){
-    if(!document.querySelector('link[data-root-lounge-social]')){const link=document.createElement('link');link.rel='stylesheet';link.href='/recovered-live/social.css';link.dataset.rootLoungeSocial='true';document.head.append(link);}
-    if(document.querySelector('script[data-root-lounge-social]'))return;
-    const script=document.createElement('script');script.src='/recovered-live/social.js';script.dataset.rootLoungeSocial='true';document.body.append(script);
-  }
-
   function installBrandObserver(){
     const observer=new MutationObserver(records=>{
       for(const record of records){
@@ -114,7 +107,6 @@
     patchFunding();
     addCorporateCard();
     loadOnboarding();
-    loadSocial();
     installBrandObserver();
     setTimeout(()=>{patchBrand();patchFunding();addCorporateCard();},900);
     setTimeout(()=>{patchBrand();patchFunding();addCorporateCard();},2200);
