@@ -3,7 +3,14 @@
   "cleanUrls": true,
   "git": {
     "deploymentEnabled": {
-      "*": false,
+      "brand/uptime-lounge-web": false,
+      "chore/quality-gate-and-vercel-discipline": false,
+      "feature/demo-community-seed-20260826": false,
+      "finish-root-social": false,
+      "prod-foundation-20260825": false,
+      "release/root-lounge-live-billing-20260903": false,
+      "release/root-mobile-v1": false,
+      "wire-root-production-supabase": false,
       "main": true
     }
   },
