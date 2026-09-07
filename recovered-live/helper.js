@@ -3,6 +3,7 @@
   const PUBLIC_BRAND='Uptime Lounge';
   const BRAND_PATTERN=/Root Lounge|ROOT LOUNGE/g;
   const MERCH_STORE='https://uptime-lounge-shop.fourthwall.com';
+  const SEO_CANONICAL='https://www.uptimelounge.com/';
 
   function ready(){return typeof window.state!=='undefined'||typeof state!=='undefined';}
   function replaceBrandText(value=''){return String(value).replace(BRAND_PATTERN,match=>match===match.toUpperCase()?'UPTIME LOUNGE':PUBLIC_BRAND);}
@@ -14,6 +15,20 @@
     link.href='/recovered-live/premium.css';
     link.dataset.uptimePremium='true';
     document.head.append(link);
+  }
+
+  function patchSeo(){
+    let canonical=document.querySelector('link[rel="canonical"]');
+    if(!canonical){canonical=document.createElement('link');canonical.setAttribute('rel','canonical');document.head.append(canonical);}
+    canonical.setAttribute('href',SEO_CANONICAL);
+
+    let robots=document.querySelector('meta[name="robots"]');
+    if(!robots){robots=document.createElement('meta');robots.setAttribute('name','robots');document.head.append(robots);}
+    robots.setAttribute('content','index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
+
+    let ogUrl=document.querySelector('meta[property="og:url"]');
+    if(!ogUrl){ogUrl=document.createElement('meta');ogUrl.setAttribute('property','og:url');document.head.append(ogUrl);}
+    ogUrl.setAttribute('content',SEO_CANONICAL);
   }
 
   function patchBrand(root=document){
@@ -103,12 +118,13 @@
 
   window.addEventListener('DOMContentLoaded',()=>{
     loadPremiumStyles();
+    patchSeo();
     patchBrand();
     patchFunding();
     addCorporateCard();
     loadOnboarding();
     installBrandObserver();
-    setTimeout(()=>{patchBrand();patchFunding();addCorporateCard();},900);
-    setTimeout(()=>{patchBrand();patchFunding();addCorporateCard();},2200);
+    setTimeout(()=>{patchSeo();patchBrand();patchFunding();addCorporateCard();},900);
+    setTimeout(()=>{patchSeo();patchBrand();patchFunding();addCorporateCard();},2200);
   });
 })();
