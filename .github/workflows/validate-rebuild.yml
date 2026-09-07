@@ -8,6 +8,7 @@ on:
       - 'index.html'
       - 'robots.txt'
       - 'sitemap.xml'
+      - '9321d93d5d3086014e81dec77c619e98.txt'
       - 'recovered-live/**'
       - 'api/**'
       - 'scripts/**'
@@ -46,6 +47,7 @@ jobs:
           node scripts/supabase-public-config.test.mjs
           node scripts/live-billing-contract.mjs
           node scripts/seo-launch-contract.mjs
+          node scripts/indexnow-contract.mjs
           for f in recovered-live/*.js api/*.js; do
             [ -f "$f" ] && node --check "$f"
           done
