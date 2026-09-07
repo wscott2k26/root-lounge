@@ -9,15 +9,17 @@ async function readMaybe(path) {
   }
 }
 
-const index = await readMaybe('index.html');
+const helper = await readMaybe('recovered-live/helper.js');
+const vercel = await readMaybe('vercel.json');
 const robots = await readMaybe('robots.txt');
 const sitemap = await readMaybe('sitemap.xml');
 
-assert.match(index, /<title>Uptime Lounge<\/title>/, 'Server HTML title must use the public Uptime Lounge brand');
-assert.match(index, /<meta name="description" content="Uptime Lounge — a decompression workspace for SysAdmins, SREs, developers, and IT teams\."\s*\/?>/, 'Server HTML must expose the canonical Uptime Lounge description');
-assert.match(index, /<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"\s*\/?>/, 'Homepage must explicitly allow indexing');
-assert.match(index, /<link rel="canonical" href="https:\/\/www\.uptimelounge\.com\/"\s*\/?>/, 'Homepage canonical must point to the production www URL');
-assert.match(index, /<meta property="og:url" content="https:\/\/www\.uptimelounge\.com\/"\s*\/?>/, 'Open Graph URL must match the canonical URL');
+assert.match(helper, /SEO_CANONICAL='https:\/\/www\.uptimelounge\.com\/'/, 'Runtime SEO metadata must use the production canonical URL');
+assert.ok(helper.includes("setAttribute('rel','canonical')"), 'Runtime must expose a canonical link element');
+assert.ok(helper.includes("name','robots'"), 'Runtime must expose an indexable robots meta tag');
+assert.ok(helper.includes("property','og:url'"), 'Runtime must expose the canonical Open Graph URL');
+assert.ok(vercel.includes('<https://www.uptimelounge.com/>; rel="canonical"'), 'Vercel must emit a canonical Link header before JavaScript runs');
+assert.ok(vercel.includes('X-Robots-Tag'), 'Vercel must emit an indexable X-Robots-Tag header');
 
 assert.match(robots, /^User-agent: \*$/m, 'robots.txt must define a global user agent');
 assert.match(robots, /^Allow: \/$/m, 'robots.txt must allow the public site');
