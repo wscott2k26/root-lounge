@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'robots.txt'
+      - 'sitemap.xml'
       - 'recovered-live/**'
       - 'api/**'
       - 'scripts/**'
@@ -43,6 +45,7 @@ jobs:
           node scripts/production-config-contract.mjs
           node scripts/supabase-public-config.test.mjs
           node scripts/live-billing-contract.mjs
+          node scripts/seo-launch-contract.mjs
           for f in recovered-live/*.js api/*.js; do
             [ -f "$f" ] && node --check "$f"
           done
