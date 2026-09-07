@@ -10,16 +10,20 @@ async function readMaybe(path) {
 }
 
 const helper = await readMaybe('recovered-live/helper.js');
-const vercel = await readMaybe('vercel.json');
+const vercelText = await readMaybe('vercel.json');
 const robots = await readMaybe('robots.txt');
 const sitemap = await readMaybe('sitemap.xml');
+const vercel = JSON.parse(vercelText);
+const homepageHeaders = vercel.headers?.find(entry => entry.source === '/')?.headers || [];
+const linkHeader = homepageHeaders.find(header => header.key === 'Link')?.value || '';
+const robotsHeader = homepageHeaders.find(header => header.key === 'X-Robots-Tag')?.value || '';
 
 assert.match(helper, /SEO_CANONICAL='https:\/\/www\.uptimelounge\.com\/'/, 'Runtime SEO metadata must use the production canonical URL');
 assert.ok(helper.includes("setAttribute('rel','canonical')"), 'Runtime must expose a canonical link element');
 assert.ok(helper.includes("name','robots'"), 'Runtime must expose an indexable robots meta tag');
 assert.ok(helper.includes("property','og:url'"), 'Runtime must expose the canonical Open Graph URL');
-assert.ok(vercel.includes('<https://www.uptimelounge.com/>; rel="canonical"'), 'Vercel must emit a canonical Link header before JavaScript runs');
-assert.ok(vercel.includes('X-Robots-Tag'), 'Vercel must emit an indexable X-Robots-Tag header');
+assert.equal(linkHeader, '<https://www.uptimelounge.com/>; rel="canonical"', 'Vercel must emit a canonical Link header before JavaScript runs');
+assert.match(robotsHeader, /^index, follow/, 'Vercel must emit an indexable X-Robots-Tag header');
 
 assert.match(robots, /^User-agent: \*$/m, 'robots.txt must define a global user agent');
 assert.match(robots, /^Allow: \/$/m, 'robots.txt must allow the public site');
