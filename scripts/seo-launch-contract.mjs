@@ -1,9 +1,17 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const index = await readFile('index.html', 'utf8');
-const robots = await readFile('robots.txt', 'utf8');
-const sitemap = await readFile('sitemap.xml', 'utf8');
+async function readMaybe(path) {
+  try { return await readFile(path, 'utf8'); }
+  catch (error) {
+    if (error?.code === 'ENOENT') return '';
+    throw error;
+  }
+}
+
+const index = await readMaybe('index.html');
+const robots = await readMaybe('robots.txt');
+const sitemap = await readMaybe('sitemap.xml');
 
 assert.match(index, /<title>Uptime Lounge<\/title>/, 'Server HTML title must use the public Uptime Lounge brand');
 assert.match(index, /<meta name="description" content="Uptime Lounge — a decompression workspace for SysAdmins, SREs, developers, and IT teams\."\s*\/?>/, 'Server HTML must expose the canonical Uptime Lounge description');
