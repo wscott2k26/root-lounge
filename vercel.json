@@ -16,6 +16,13 @@
   },
   "headers": [
     {
+      "source": "/",
+      "headers": [
+        {"key":"Link","value":"<https://www.uptimelounge.com/>; rel=\"canonical\""},
+        {"key":"X-Robots-Tag","value":"index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"}
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {"key":"X-Content-Type-Options","value":"nosniff"},
@@ -27,7 +34,10 @@
     },
     {
       "source": "/api/(.*)",
-      "headers": [{"key":"Cache-Control","value":"no-store"}]
+      "headers": [
+        {"key":"Cache-Control","value":"no-store"},
+        {"key":"X-Robots-Tag","value":"noindex, nofollow"}
+      ]
     }
   ]
 }
